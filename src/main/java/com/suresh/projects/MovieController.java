@@ -1,4 +1,4 @@
-package com.suresh.projects.movieworld.controllers;
+package com.suresh.projects;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MovieController {
 	
 	@GetMapping("/movies")
-	public String getAllMovies() {
-		return "Movies List Test";
+	public String findMovies() {
+		return "Test Success";
 	}
 }
