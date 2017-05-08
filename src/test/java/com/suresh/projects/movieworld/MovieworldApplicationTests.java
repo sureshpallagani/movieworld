@@ -1,4 +1,4 @@
-package com.suresh.projects;
+package com.suresh.projects.movieworld;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
