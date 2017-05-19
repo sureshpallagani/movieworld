@@ -1,33 +1,30 @@
 package com.suresh.projects.movieworld.entities;
 
 import java.io.Serializable;
-import java.util.Date;
 
-import javax.persistence.Column;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 @Entity
 public class Movie implements Serializable{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
-	@Column(name="TITLE")
+	private long id;
 	private String title;
-	@Column(name="YEAR_RELEASED")
-	private int yearReleased;
-	@Column(name="DATE_RELEASED")
-	private Date dateReleased;
-	@Column(name="RATING_ID")
-	private int ratingId;
+	private int year;
+	@OneToOne(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+	private MovieInfo info;
 	
-	public int getId() {
+	public long getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 	public String getTitle() {
@@ -36,24 +33,18 @@ public class Movie implements Serializable{
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public int getYearReleased() {
-		return yearReleased;
+	public int getYear() {
+		return year;
 	}
-	public void setYearReleased(int yearReleased) {
-		this.yearReleased = yearReleased;
+	public void setYear(int year) {
+		this.year = year;
 	}
-	public Date getDateReleased() {
-		return dateReleased;
+	public MovieInfo getInfo() {
+		return info;
 	}
-	public void setDateReleased(Date dateReleased) {
-		this.dateReleased = dateReleased;
+	public void setInfo(MovieInfo info) {
+		this.info = info;
 	}
-	public int getRatingId() {
-		return ratingId;
-	}
-	public void setRatingId(int ratingId) {
-		this.ratingId = ratingId;
-	}
-	
+
 	
 }
