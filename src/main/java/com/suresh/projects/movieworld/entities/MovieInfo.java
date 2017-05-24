@@ -24,19 +24,19 @@ public class MovieInfo {
     @JoinColumn(name = "id")
     private Movie movie;
 	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "moviedirectors", joinColumns = @JoinColumn(name = "movie"), inverseJoinColumns = @JoinColumn(name = "director"))
+    @JoinTable(name = "movie_directors", joinColumns = @JoinColumn(name = "movie"), inverseJoinColumns = @JoinColumn(name = "director"))
 	private List<Director> directors;
 	private Date release_date;
 	private double rating;
 	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "moviegenres", joinColumns = @JoinColumn(name = "movie"), inverseJoinColumns = @JoinColumn(name = "genre"))
+    @JoinTable(name = "movie_genres", joinColumns = @JoinColumn(name = "movie"), inverseJoinColumns = @JoinColumn(name = "genre"))
 	private List<Genre> genres;
 	private String image_url;
 	private String plot;
 	private int rank;
 	private int running_time_secs;
 	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "movieactors", joinColumns = @JoinColumn(name = "movie"), inverseJoinColumns = @JoinColumn(name = "actor"))
+    @JoinTable(name = "movie_actors", joinColumns = @JoinColumn(name = "movie"), inverseJoinColumns = @JoinColumn(name = "actor"))
 	private List<Actor> actors;
 
 	public Movie getMovie() {

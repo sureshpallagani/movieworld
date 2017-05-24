@@ -1,34 +1,26 @@
 package com.suresh.projects.movieworld.controllers;
 
-import java.util.List;
+import static java.util.Collections.EMPTY_LIST;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.suresh.projects.movieworld.entities.Movie;
-import com.suresh.projects.movieworld.repositories.MovieRepository;
-
-import static java.util.Collections.EMPTY_LIST;
-import static java.util.stream.StreamSupport.stream;
-import static java.util.stream.Collectors.toList;
+import com.suresh.projects.movieworld.services.MovieService;
 
 @RestController
-@Transactional
 public class MovieController {
 	
 	@Autowired
-	private MovieRepository movieRepository;
+	private MovieService movieService;
 	
 	@GetMapping("/movies")
-	public List<Movie> findMovies() {
+	public Iterable<Movie> findMovies() {
 		try {
-			return stream(movieRepository.findAll().spliterator(), false)
-								.sorted((m1, m2) -> Long.compare(m1.getYear(), m2.getYear()))
-								.collect(toList());
+			return movieService.findAll();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -37,8 +29,7 @@ public class MovieController {
 	
 	@PostMapping("/movies")
 	public Movie createMovies(@RequestBody Movie movie) {
-		movieRepository.save(movie);
-		return movie;
+		return movieService.createMovie(movie);
 	}
 	
 	
