@@ -1,39 +1,25 @@
 package com.suresh.projects.movieworld.entities;
 
-import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-
-@Entity
+@Embeddable
 public class Genre {
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
 	private String type;
-	@ManyToMany(mappedBy = "genres")
-	private List<MovieInfo> movies;
+	@Column(name="genre_description")
+	private String description;
 
-	public long getId() {
-		return id;
-	}
-	public void setId(long id) {
-		this.id = id;
-	}
 	public String getType() {
 		return type;
 	}
 	public void setType(String type) {
 		this.type = type;
 	}
-	public List<MovieInfo> getMovies() {
-		return movies;
+	public String getDescription() {
+		return description;
 	}
-	public void setMovies(List<MovieInfo> movies) {
-		this.movies = movies;
+	public void setDescription(String description) {
+		this.description = description;
 	}
-		
+			
 }

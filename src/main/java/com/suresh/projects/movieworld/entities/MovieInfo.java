@@ -3,16 +3,17 @@ package com.suresh.projects.movieworld.entities;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class MovieInfo {
@@ -20,23 +21,24 @@ public class MovieInfo {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id")
+	@JsonIgnore
     private Movie movie;
-	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "movie_directors", joinColumns = @JoinColumn(name = "movie"), inverseJoinColumns = @JoinColumn(name = "director"))
+	@ElementCollection
+	@CollectionTable(name="director", joinColumns=@JoinColumn(name="movie_info_id"))
 	private List<Director> directors;
 	private Date release_date;
 	private double rating;
-	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "movie_genres", joinColumns = @JoinColumn(name = "movie"), inverseJoinColumns = @JoinColumn(name = "genre"))
+	@ElementCollection
+	@CollectionTable(name="genre", joinColumns=@JoinColumn(name="movie_info_id"))
 	private List<Genre> genres;
 	private String image_url;
 	private String plot;
 	private int rank;
 	private int running_time_secs;
-	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "movie_actors", joinColumns = @JoinColumn(name = "movie"), inverseJoinColumns = @JoinColumn(name = "actor"))
+	@ElementCollection
+	@CollectionTable(name="actor", joinColumns=@JoinColumn(name="movie_info_id"))
 	private List<Actor> actors;
 
 	public Movie getMovie() {

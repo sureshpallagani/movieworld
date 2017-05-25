@@ -20,7 +20,7 @@ public class Movie implements Serializable{
 	private long id;
 	private String title;
 	private int year;
-	@OneToOne(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+	@OneToOne(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = false)
 	private MovieInfo info;
 	
 	public long getId() {
@@ -47,6 +47,5 @@ public class Movie implements Serializable{
 	public void setInfo(MovieInfo info) {
 		this.info = info;
 	}
-
 	
 }
