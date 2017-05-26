@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -28,6 +29,7 @@ public class MovieInfo {
 	@ElementCollection
 	@CollectionTable(name="director", joinColumns=@JoinColumn(name="movie_info_id"))
 	private List<Director> directors;
+	@JsonFormat(pattern="yyyy-MM-dd")
 	private Date release_date;
 	private double rating;
 	@ElementCollection

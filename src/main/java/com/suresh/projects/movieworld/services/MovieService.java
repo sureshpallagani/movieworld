@@ -21,4 +21,16 @@ public class MovieService {
 	public Movie createMovie(Movie movie) {
 		return movieRepository.saveAndFlush(movie);
 	}
+
+	public Movie findById(long id) {
+		return movieRepository.findOne(id);
+	}
+
+	public Movie updateMovie(Movie movie) {
+		return movieRepository.saveAndFlush(movie);
+	}
+
+	public void deleteMovie(long id) {
+		movieRepository.delete(id);
+	}
 }
