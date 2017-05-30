@@ -1,8 +1,8 @@
 package com.suresh.projects.movieworld.controllers;
 
-import static java.util.Collections.EMPTY_LIST;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Collections.EMPTY_LIST;
 
 import javax.validation.constraints.NotNull;
 
@@ -36,11 +36,12 @@ public class MovieController {
 	
 	@GetMapping("/movies/{id}")
 	public Movie findMovieById(@PathVariable @NotNull long id) {
+		checkArgument(id > 0, "id is invalid");
 		return movieService.findById(id);
 	}
 	
 	@PostMapping("/movies")
-	public Movie createMovies(@RequestBody Movie movie) {
+	public Movie createMovie(@RequestBody @NotNull Movie movie) {
 		return movieService.createMovie(movie);
 	}
 	
@@ -58,4 +59,5 @@ public class MovieController {
 		movieService.deleteMovie(id);
 		return "Deleted Successfully";
 	}
+	
 }

@@ -1,5 +1,7 @@
 package com.suresh.projects.movieworld.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -32,5 +34,10 @@ public class MovieService {
 
 	public void deleteMovie(long id) {
 		movieRepository.delete(id);
+	}
+
+	public Movie createMovies(List<Movie> movies) {
+		movieRepository.save(movies);
+		return null;
 	}
 }
