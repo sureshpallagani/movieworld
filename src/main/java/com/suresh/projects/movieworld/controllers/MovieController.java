@@ -2,7 +2,7 @@ package com.suresh.projects.movieworld.controllers;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Collections.EMPTY_LIST;
+import static java.util.Optional.ofNullable;
 
 import javax.validation.constraints.NotNull;
 
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.suresh.projects.movieworld.entities.Movie;
@@ -24,14 +25,14 @@ public class MovieController {
 	@Autowired
 	private MovieService movieService;
 	
-	@GetMapping("/movies")
-	public Iterable<Movie> findMovies() {
-		try {
+	@GetMapping(value = "/movies")
+	public Iterable<Movie> findMovies(@RequestParam(value="page", required = false) Integer page, 
+										@RequestParam(value="size", required = false) Integer size) {
+		if (ofNullable(page).isPresent() && ofNullable(size).isPresent()) {
+			return movieService.findPagenated(page, size);
+		} else {
 			return movieService.findAll();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-		return EMPTY_LIST;
 	}
 	
 	@GetMapping("/movies/{id}")

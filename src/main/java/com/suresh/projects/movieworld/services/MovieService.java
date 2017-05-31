@@ -3,6 +3,7 @@ package com.suresh.projects.movieworld.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,5 +40,9 @@ public class MovieService {
 	public Movie createMovies(List<Movie> movies) {
 		movieRepository.save(movies);
 		return null;
+	}
+	
+	public Iterable<Movie> findPagenated(Integer page, Integer size) {
+		return movieRepository.findAll(new PageRequest(page, size));
 	}
 }
