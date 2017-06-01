@@ -11,3 +11,4 @@ Movie World project
 2. Uses AWS MySQL RDS as backend Database.
 3. "/setup" endpoint for creating and clearing off the test movie data.
 4. MovieController for CRUD operations on Movies.
+5. Cucumber with Java step definitions.
