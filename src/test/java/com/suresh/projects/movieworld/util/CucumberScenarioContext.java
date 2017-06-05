@@ -1,11 +1,11 @@
-package com.suresh.projects.movieworld;
+package com.suresh.projects.movieworld.util;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import cucumber.api.java.Before;
 
-public class ScenarioContext {
+public class CucumberScenarioContext {
 	private static ThreadLocal<Map<String, Object>> context = new ThreadLocal<>();
     public static Object get(final String name) { 
         final Object obj = context.get().get(name); 

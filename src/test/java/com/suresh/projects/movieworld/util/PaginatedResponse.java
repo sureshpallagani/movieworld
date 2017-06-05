@@ -1,4 +1,4 @@
-package com.suresh.projects.movieworld;
+package com.suresh.projects.movieworld.util;
 
 import java.util.List;
 
