@@ -9,11 +9,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.validation.constraints.NotNull;
 
 @Entity
-@XmlRootElement
-public class Movie implements Serializable{
+public class Movie implements Serializable {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -21,6 +20,7 @@ public class Movie implements Serializable{
 	private String title;
 	private int year;
 	@OneToOne(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = false)
+	@NotNull
 	private MovieInfo info;
 	
 	public long getId() {

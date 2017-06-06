@@ -1,4 +1,6 @@
 Feature: CRUD operations on Movie
+	Background: Movie setup for CRUD operations
+		Given movie that exists i want to set it in context for further scenarios in this feature.
 	Scenario: Client POST a new Movie
 		Given movie details
 		|title|year|
@@ -29,14 +31,14 @@ Feature: CRUD operations on Movie
 		Then the client receives status code of 200
 		And Client should receive a movie in the response
 		When Client requests for a movie by Id that exists "false"
-#		Then the client receives status code of TODO - TODO
+		Then the client receives status code of 404
 	Scenario: Client can PUT Movie
 		When Client requests to update a movie by Id that exists "true"
 		Then the client receives status code of 200
-#		When Client requests to update a movie by Id that exists "false"
-#		Then the client receives status code of TODO	- TODO	
+		When Client requests to update a movie by Id that exists "false"
+		Then the client receives status code of 404	
 	Scenario: Client can DELETE Movie
 		When Client requests to delete a movie by Id that exists "true"
 		Then the client receives status code of 200
-#		When Client requests to delete a movie by Id that exists "false"
-#		Then the client receives status code of TODO	- TODO	
+		When Client requests to delete a movie by Id that exists "false"
+		Then the client receives status code of 404

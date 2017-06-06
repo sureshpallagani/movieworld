@@ -19,6 +19,7 @@ import com.suresh.projects.movieworld.entities.Genre;
 import com.suresh.projects.movieworld.entities.Movie;
 import com.suresh.projects.movieworld.entities.MovieInfo;
 import com.suresh.projects.movieworld.util.CucumberScenarioContext;
+import com.suresh.projects.movieworld.util.PaginatedResponse;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
@@ -34,6 +35,12 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 		movie = new Movie();
 	}
 
+	@Given("^movie that exists i want to set it in context for further scenarios in this feature\\.$")
+	public void movie_that_exists_i_want_to_set_it_in_context_for_further_scenarios_in_this_feature() throws Throwable {
+		ResponseEntity<PaginatedResponse> paginatedResponse = restTemplate.exchange("http://localhost:8080/movieworld/movies?page=0&size=1", HttpMethod.GET, null, PaginatedResponse.class);
+		globalContext.setMovie(paginatedResponse.getBody().getContent().get(0));
+	}
+	
 	@Given("^movie details$")
 	public void movie_details(List<Movie> arg1) throws Throwable {
 	    movie.setTitle(arg1.get(0).getTitle());
@@ -66,8 +73,6 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 																			Movie.class);
 		response = responseMovie.getBody();
 		CucumberScenarioContext.put("currentStatusCode", responseMovie.getStatusCode());
-		globalContext.setMovieIdInTest(responseMovie.getBody().getId());
-		globalContext.setMovie(response);
 	}
 
 	@Then("^movie should have an id$")
@@ -83,30 +88,38 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 
 	@When("^Client requests for a movie by Id that exists \"([^\"]*)\"$")
 	public void client_requests_for_a_movie_by_Id_that_exists(String arg1) throws Throwable {
-		ResponseEntity<Movie> responseMovie = restTemplate.getForEntity("http://localhost:8080/movieworld/movies/"+(Boolean.valueOf(arg1)?globalContext.getMovieIdInTest():9999), 
-																		Movie.class);
-		CucumberScenarioContext.put("currentStatusCode", responseMovie.getStatusCode());
-		CucumberScenarioContext.put("MovieInTest", responseMovie.getBody());
+		if (Boolean.valueOf(arg1) == Boolean.TRUE) {
+			ResponseEntity<Movie> response = restTemplate.getForEntity("http://localhost:8080/movieworld/movies/"+globalContext.getMovie().getId(), Movie.class);
+			CucumberScenarioContext.put("currentStatusCode", response.getStatusCode());
+			CucumberScenarioContext.put("MovieInTest", response.getBody());
+		} else {
+			ResponseEntity<Object> response = restTemplate.getForEntity("http://localhost:8080/movieworld/movies/"+9999, Object.class);
+			CucumberScenarioContext.put("currentStatusCode", response.getStatusCode());
+		}
 	}
 
 	@Then("^Client should receive a movie in the response$")
 	public void client_should_receive_a_movie_in_the_response() throws Throwable {
 		Movie movie = CucumberScenarioContext.get("MovieInTest", Movie.class);
-		assertEquals("Movie Ids didn't match",  globalContext.getMovieIdInTest(), movie.getId());
+		assertEquals("Movie Ids didn't match",  globalContext.getMovie().getId(), movie.getId());
 	}
 	
 	@When("^Client requests to update a movie by Id that exists \"([^\"]*)\"$")
 	public void client_requests_to_update_a_movie_by_Id_that_exists(String arg1) throws Throwable {
-		ResponseEntity<Object> responseMovie = restTemplate.exchange("http://localhost:8080/movieworld/movies/"+(Boolean.valueOf(arg1)?globalContext.getMovieIdInTest():9999), 
+		Movie movie = globalContext.getMovie();
+		if (Boolean.valueOf(arg1) == Boolean.FALSE) {
+			movie.setId(9999);
+		}
+		ResponseEntity<Object> responseMovie = restTemplate.exchange("http://localhost:8080/movieworld/movies/"+(Boolean.valueOf(arg1)?globalContext.getMovie().getId():9999), 
 																	HttpMethod.PUT, 
-																	new HttpEntity<Movie>(globalContext.getMovie()), 
+																	new HttpEntity<Movie>(movie), 
 																	Object.class);
 		CucumberScenarioContext.put("currentStatusCode", responseMovie.getStatusCode());
 	}
 
 	@When("^Client requests to delete a movie by Id that exists \"([^\"]*)\"$")
 	public void client_requests_to_delete_a_movie_by_Id_that_exists(String arg1) throws Throwable {
-		URI uri = new URI("http://localhost:8080/movieworld/movies/"+(Boolean.valueOf(arg1)?globalContext.getMovieIdInTest():9999));
+		URI uri = new URI("http://localhost:8080/movieworld/movies/"+(Boolean.valueOf(arg1)?globalContext.getMovie().getId():9999));
 		try {
 			restTemplate.delete(uri);
 		} catch (RestClientException e) {
