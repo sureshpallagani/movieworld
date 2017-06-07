@@ -117,16 +117,23 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 		CucumberScenarioContext.put("currentStatusCode", responseMovie.getStatusCode());
 	}
 
+
+	@When("^The Movie id didn't match the id in uri$")
+	public void the_Movie_id_didn_t_match_the_id_in_uri() throws Throwable {
+		ResponseEntity<Object> responseMovie = restTemplate.exchange("http://localhost:8080/movieworld/movies/"+9999, 
+																		HttpMethod.PUT, 
+																		new HttpEntity<Movie>(movie), 
+																		Object.class);
+		CucumberScenarioContext.put("currentStatusCode", responseMovie.getStatusCode());
+	}
+
 	@When("^Client requests to delete a movie by Id that exists \"([^\"]*)\"$")
 	public void client_requests_to_delete_a_movie_by_Id_that_exists(String arg1) throws Throwable {
-		URI uri = new URI("http://localhost:8080/movieworld/movies/"+(Boolean.valueOf(arg1)?globalContext.getMovie().getId():9999));
-		try {
-			restTemplate.delete(uri);
-		} catch (RestClientException e) {
-			CucumberScenarioContext.put("currentStatusCode", HttpStatus.INTERNAL_SERVER_ERROR);
-			throw new Exception(e);
-		}
-		CucumberScenarioContext.put("currentStatusCode", HttpStatus.OK);
+		ResponseEntity<Object> response = restTemplate.exchange("http://localhost:8080/movieworld/movies/"+(Boolean.valueOf(arg1)?globalContext.getMovie().getId():9999), 
+															HttpMethod.DELETE, 
+															new HttpEntity<Movie>(movie), 
+															Object.class);
+		CucumberScenarioContext.put("currentStatusCode", response.getStatusCode());
 	}
 
 }

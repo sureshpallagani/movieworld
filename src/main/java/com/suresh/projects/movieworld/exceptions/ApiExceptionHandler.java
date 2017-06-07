@@ -18,6 +18,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	public ResponseEntity<Object> handleApiException(final ApiException ex, final WebRequest request) {
 		return handleExceptionInternal(ex, message(ex.status, ex), new HttpHeaders(), ex.status, request);
 	}
+	
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<Object> handleApiException(final IllegalArgumentException ex, final WebRequest request) {
+		return handleExceptionInternal(ex, message(HttpStatus.PRECONDITION_FAILED, ex), new HttpHeaders(), HttpStatus.PRECONDITION_FAILED, request);
+	}
 
 	@Override
 	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {

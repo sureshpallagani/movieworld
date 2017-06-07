@@ -37,6 +37,9 @@ Feature: CRUD operations on Movie
 		Then the client receives status code of 200
 		When Client requests to update a movie by Id that exists "false"
 		Then the client receives status code of 404	
+		When Client requests to update a movie by Id that exists "true"
+		And The Movie id didn't match the id in uri
+		Then the client receives status code of 412	
 	Scenario: Client can DELETE Movie
 		When Client requests to delete a movie by Id that exists "true"
 		Then the client receives status code of 200

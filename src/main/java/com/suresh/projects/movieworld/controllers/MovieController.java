@@ -56,18 +56,17 @@ public class MovieController {
 	}
 	
 	@PutMapping("/movies/{id}")
-	public Movie updateMovie(@PathVariable @NotNull long id, @RequestBody Movie movie) throws ApiException {
+	public void updateMovie(@PathVariable @NotNull long id, @RequestBody Movie movie) throws ApiException {
 		checkArgument(id > 0, "id is invalid");
 		checkNotNull(movie);
 		checkArgument(id == movie.getId(), "Invalid request, check the arguments", "");
-		return movieService.updateMovie(movie);
+		movieService.updateMovie(movie);
 	}
 	
 	@DeleteMapping("/movies/{id}")
-	public String deleteMovie(@PathVariable @NotNull long id) throws ApiException {
+	public void deleteMovie(@PathVariable @NotNull long id) throws ApiException {
 		checkArgument(id > 0, "id is invalid");
 		movieService.deleteMovie(id);
-		return "Deleted Successfully";
 	}
 	
 }
