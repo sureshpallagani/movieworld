@@ -3,14 +3,11 @@ package com.suresh.projects.movieworld.stepdefs;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
 
 import com.suresh.projects.movieworld.MovieWorldApplicationTests;
 import com.suresh.projects.movieworld.entities.Actor;
