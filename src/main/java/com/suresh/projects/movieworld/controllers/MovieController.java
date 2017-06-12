@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +30,7 @@ public class MovieController {
 	@Autowired
 	private MovieService movieService;
 	
-	@GetMapping(value = "/movies")
+	@GetMapping(value = "/movies", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Iterable<Movie> findMovies(@RequestParam(value="page", required = false) Integer page, 
 										@RequestParam(value="size", required = false) Integer size) {
 		if (ofNullable(page).isPresent() && ofNullable(size).isPresent()) {
@@ -39,8 +40,8 @@ public class MovieController {
 		}
 	}
 	
-	@GetMapping("/movies/{id}")
-	public Movie findMovieById(@PathVariable @NotNull long id) throws Exception {
+	@GetMapping(value = "/movies/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public Movie findMovieById(@PathVariable long id) throws Exception {
 		checkArgument(id > 0, "id is invalid");
 		Optional<Movie> movie = movieService.findById(id);
 		if (movie.isPresent()) {
@@ -50,13 +51,13 @@ public class MovieController {
 		}
 	}
 	
-	@PostMapping("/movies")
+	@PostMapping(value = "/movies", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Movie createMovie(@RequestBody @NotNull Movie movie) {
 		return movieService.createMovie(movie);
 	}
 	
-	@PutMapping("/movies/{id}")
-	public void updateMovie(@PathVariable @NotNull long id, @RequestBody Movie movie) throws ApiException {
+	@PutMapping(value = "/movies/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public void updateMovie(@PathVariable long id, @RequestBody Movie movie) throws ApiException {
 		checkArgument(id > 0, "id is invalid");
 		checkNotNull(movie);
 		checkArgument(id == movie.getId(), "Invalid request, check the arguments", "");
@@ -64,7 +65,7 @@ public class MovieController {
 	}
 	
 	@DeleteMapping("/movies/{id}")
-	public void deleteMovie(@PathVariable @NotNull long id) throws ApiException {
+	public void deleteMovie(@PathVariable long id) throws ApiException {
 		checkArgument(id > 0, "id is invalid");
 		movieService.deleteMovie(id);
 	}
