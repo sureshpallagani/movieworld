@@ -2,9 +2,8 @@ package com.suresh.projects.movieworld.controllers;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Optional.ofNullable;
 
-import java.util.Optional;
+import  java.util.Optional;
 
 import javax.validation.constraints.NotNull;
 
@@ -20,7 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.suresh.projects.movieworld.entities.Movie;
+import com.suresh.projects.movieworld.dto.MovieDto;
+import com.suresh.projects.movieworld.dto.PaginatedResponse;
 import com.suresh.projects.movieworld.exceptions.ApiException;
 import com.suresh.projects.movieworld.services.MovieService;
 
@@ -31,37 +31,39 @@ public class MovieController {
 	private MovieService movieService;
 	
 	@GetMapping(value = "/movies", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Iterable<Movie> findMovies(@RequestParam(value="page", required = false) Integer page, 
+	public PaginatedResponse findMovies(@RequestParam(value="page", required = false) Integer page, 
 										@RequestParam(value="size", required = false) Integer size) {
-		if (ofNullable(page).isPresent() && ofNullable(size).isPresent()) {
+		if (Optional.ofNullable(page).isPresent() && Optional.ofNullable(size).isPresent()) {
 			return movieService.findPagenated(page, size);
 		} else {
-			return movieService.findAll();
+			PaginatedResponse response = new PaginatedResponse();
+			response.setContent(movieService.findAll());
+			return response;
 		}
 	}
 	
 	@GetMapping(value = "/movies/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Movie findMovieById(@PathVariable long id) throws Exception {
+	public MovieDto findMovieById(@PathVariable long id) throws Exception {
 		checkArgument(id > 0, "id is invalid");
-		Optional<Movie> movie = movieService.findById(id);
-		if (movie.isPresent()) {
-			return movie.get();
+		Optional<MovieDto> movieDto = movieService.findById(id);
+		if (movieDto.isPresent()) {
+			return movieDto.get();
 		} else {
 			throw new ApiException("Move with Id: " + id + " doesn't exist", HttpStatus.NOT_FOUND);
 		}
 	}
 	
 	@PostMapping(value = "/movies", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public Movie createMovie(@RequestBody @NotNull Movie movie) {
-		return movieService.createMovie(movie);
+	public MovieDto createMovie(@RequestBody @NotNull MovieDto movieDto) {
+		return movieService.createMovie(movieDto);
 	}
 	
 	@PutMapping(value = "/movies/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public void updateMovie(@PathVariable long id, @RequestBody Movie movie) throws ApiException {
+	public void updateMovie(@PathVariable long id, @RequestBody MovieDto movieDto) throws ApiException {
 		checkArgument(id > 0, "id is invalid");
-		checkNotNull(movie);
-		checkArgument(id == movie.getId(), "Invalid request, check the arguments", "");
-		movieService.updateMovie(movie);
+		checkNotNull(movieDto);
+		checkArgument(id == movieDto.getId(), "Invalid request, check the arguments", "");
+		movieService.updateMovie(movieDto);
 	}
 	
 	@DeleteMapping("/movies/{id}")

@@ -5,31 +5,26 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import java.util.List;
-
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.suresh.projects.movieworld.MovieWorldApplicationTests;
-import com.suresh.projects.movieworld.entities.Movie;
+import com.suresh.projects.movieworld.dto.PaginatedResponse;
 import com.suresh.projects.movieworld.util.CucumberScenarioContext;
-import com.suresh.projects.movieworld.util.PaginatedResponse;
 
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class MovieWorldSearchStepDefs extends MovieWorldApplicationTests {
-	ResponseEntity<List<Movie>> moviesResponse = null;
 	ResponseEntity<PaginatedResponse> paginatedResponse = null;
 	
 	@When("^the client calls /movies$")
 	public void the_client_calls_movies() throws Throwable {
-		moviesResponse = restTemplate.exchange("http://localhost:8080/movieworld/movies", HttpMethod.GET, null, new ParameterizedTypeReference<List<Movie>>() { });
-		CucumberScenarioContext.put("currentStatusCode", moviesResponse.getStatusCode());
-	    assertNotNull(moviesResponse);
+		paginatedResponse = restTemplate.exchange("http://localhost:8080/movieworld/movies", HttpMethod.GET, null, PaginatedResponse.class);
+		CucumberScenarioContext.put("currentStatusCode", paginatedResponse.getStatusCode());
+	    assertNotNull(paginatedResponse);
 	}
 
 	@Then("^the client receives status code of (\\d+)$")
@@ -40,7 +35,7 @@ public class MovieWorldSearchStepDefs extends MovieWorldApplicationTests {
 
 	@Then("^client receives list of movies$")
 	public void client_receives_list_of_movies() throws Throwable {
-		assertThat("List not received", moviesResponse.getBody(), any(List.class));
+		assertThat("List not received", paginatedResponse.getBody(), any(PaginatedResponse.class));
 	}
 
 	@Given("^page is (\\d+) and size is (\\d+)$")

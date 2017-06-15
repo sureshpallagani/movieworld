@@ -2,6 +2,7 @@ package com.suresh.projects.movieworld;
 
 import java.time.LocalDate;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -56,6 +57,11 @@ public class MovieWorldApplication extends SpringBootServletInitializer {
 					.build()
 					.directModelSubstitute(LocalDate.class, String.class)
 					.genericModelSubstitutes(ResponseEntity.class);
+	}
+	
+	@Bean
+	public ModelMapper modelMapper() {
+	    return new ModelMapper();
 	}
 	
 	@Override

@@ -9,7 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
-import javax.validation.constraints.NotNull;
 
 @Entity
 public class Movie implements Serializable {
@@ -19,8 +18,7 @@ public class Movie implements Serializable {
 	private long id;
 	private String title;
 	private int year;
-	@OneToOne(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = false)
-	@NotNull
+	@OneToOne(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
 	private MovieInfo info;
 	
 	public long getId() {

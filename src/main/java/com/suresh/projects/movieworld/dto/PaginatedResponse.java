@@ -1,27 +1,27 @@
-package com.suresh.projects.movieworld.util;
+package com.suresh.projects.movieworld.dto;
 
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.suresh.projects.movieworld.entities.Movie;
+import com.suresh.projects.movieworld.dto.MovieDto;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PaginatedResponse {
-	private List<Movie> content;
+	private List<MovieDto> content;
 	private boolean last;
 	private int totalPages;
-	private int totalElements;
+	private long totalElements;
 	private int size;
 	private int sort;
 	private int numberOfElements;
 	private boolean first;
-	public List<Movie> getContent() {
+	public List<MovieDto> getContent() {
 		return content;
 	}
-	public void setContent(List<Movie> content) {
+	public void setContent(List<MovieDto> content) {
 		this.content = content;
 	}
 	public boolean isLast() {
@@ -36,10 +36,10 @@ public class PaginatedResponse {
 	public void setTotalPages(int totalPages) {
 		this.totalPages = totalPages;
 	}
-	public int getTotalElements() {
+	public long getTotalElements() {
 		return totalElements;
 	}
-	public void setTotalElements(int totalElements) {
+	public void setTotalElements(long totalElements) {
 		this.totalElements = totalElements;
 	}
 	public int getSize() {

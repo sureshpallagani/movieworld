@@ -10,13 +10,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import com.suresh.projects.movieworld.MovieWorldApplicationTests;
-import com.suresh.projects.movieworld.entities.Actor;
-import com.suresh.projects.movieworld.entities.Director;
-import com.suresh.projects.movieworld.entities.Genre;
-import com.suresh.projects.movieworld.entities.Movie;
-import com.suresh.projects.movieworld.entities.MovieInfo;
+import com.suresh.projects.movieworld.dto.MovieDto;
+import com.suresh.projects.movieworld.dto.PaginatedResponse;
 import com.suresh.projects.movieworld.util.CucumberScenarioContext;
-import com.suresh.projects.movieworld.util.PaginatedResponse;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
@@ -24,12 +20,12 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
-	Movie response = null;
-	Movie movie = null;
+	MovieDto response = null;
+	MovieDto movie = null;
 	
 	@Before
 	public void init() {
-		movie = new Movie();
+		movie = new MovieDto();
 	}
 
 	@Given("^movie that exists i want to set it in context for further scenarios in this feature\\.$")
@@ -39,35 +35,35 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 	}
 	
 	@Given("^movie details$")
-	public void movie_details(List<Movie> arg1) throws Throwable {
+	public void movie_details(List<MovieDto> arg1) throws Throwable {
 	    movie.setTitle(arg1.get(0).getTitle());
 	    movie.setYear(arg1.get(0).getYear());
 	}
 
-	@Given("^movie info to be$")
-	public void movie_info_to_be(List<MovieInfo> arg1) throws Throwable {
-		movie.setInfo(arg1.get(0));
-	}
-	@Given("^directors to be$")
-	public void directors_to_be(List<Director> arg1) throws Throwable {
-		movie.getInfo().setDirectors(arg1);
-	}
-
-	@Given("^actors to be$")
-	public void actors_to_be(List<Actor> arg1) throws Throwable {
-		movie.getInfo().setActors(arg1);
-	}
-
-	@Given("^genres to be$")
-	public void genres_to_be(List<Genre> arg1) throws Throwable {
-		movie.getInfo().setGenres(arg1);
-	}
+//	@Given("^movie info to be$")
+//	public void movie_info_to_be(List<MovieInfo> arg1) throws Throwable {
+//		movie.setInfo(arg1.get(0));
+//	}
+//	@Given("^directors to be$")
+//	public void directors_to_be(List<Director> arg1) throws Throwable {
+//		movie.getInfo().setDirectors(arg1);
+//	}
+//
+//	@Given("^actors to be$")
+//	public void actors_to_be(List<Actor> arg1) throws Throwable {
+//		movie.getInfo().setActors(arg1);
+//	}
+//
+//	@Given("^genres to be$")
+//	public void genres_to_be(List<Genre> arg1) throws Throwable {
+//		movie.getInfo().setGenres(arg1);
+//	}
 
 	@When("^the client calls POST /movies$")
 	public void the_client_calls_POST_movies() throws Throwable {
-		ResponseEntity<Movie> responseMovie = restTemplate.postForEntity("http://localhost:8080/movieworld/movies", 
+		ResponseEntity<MovieDto> responseMovie = restTemplate.postForEntity("http://localhost:8080/movieworld/movies", 
 																			movie, 
-																			Movie.class);
+																			MovieDto.class);
 		response = responseMovie.getBody();
 		CucumberScenarioContext.put("currentStatusCode", responseMovie.getStatusCode());
 	}
@@ -78,7 +74,7 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 	}
 
 	@Then("^movie should be$")
-	public void movie_should_be(List<Movie> arg1) throws Throwable {
+	public void movie_should_be(List<MovieDto> arg1) throws Throwable {
 		assertEquals("Title didn't match", arg1.get(0).getTitle(), response.getTitle());
 		assertEquals("Year didn't match", arg1.get(0).getYear(), response.getYear());
 	}
@@ -86,7 +82,7 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 	@When("^Client requests for a movie by Id that exists \"([^\"]*)\"$")
 	public void client_requests_for_a_movie_by_Id_that_exists(String arg1) throws Throwable {
 		if (Boolean.valueOf(arg1) == Boolean.TRUE) {
-			ResponseEntity<Movie> response = restTemplate.getForEntity("http://localhost:8080/movieworld/movies/"+globalContext.getMovie().getId(), Movie.class);
+			ResponseEntity<MovieDto> response = restTemplate.getForEntity("http://localhost:8080/movieworld/movies/"+globalContext.getMovie().getId(), MovieDto.class);
 			CucumberScenarioContext.put("currentStatusCode", response.getStatusCode());
 			CucumberScenarioContext.put("MovieInTest", response.getBody());
 		} else {
@@ -97,19 +93,19 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 
 	@Then("^Client should receive a movie in the response$")
 	public void client_should_receive_a_movie_in_the_response() throws Throwable {
-		Movie movie = CucumberScenarioContext.get("MovieInTest", Movie.class);
+		MovieDto movie = CucumberScenarioContext.get("MovieInTest", MovieDto.class);
 		assertEquals("Movie Ids didn't match",  globalContext.getMovie().getId(), movie.getId());
 	}
 	
 	@When("^Client requests to update a movie by Id that exists \"([^\"]*)\"$")
 	public void client_requests_to_update_a_movie_by_Id_that_exists(String arg1) throws Throwable {
-		Movie movie = globalContext.getMovie();
+		MovieDto movie = globalContext.getMovie();
 		if (Boolean.valueOf(arg1) == Boolean.FALSE) {
 			movie.setId(9999);
 		}
 		ResponseEntity<Object> responseMovie = restTemplate.exchange("http://localhost:8080/movieworld/movies/"+(Boolean.valueOf(arg1)?globalContext.getMovie().getId():9999), 
 																	HttpMethod.PUT, 
-																	new HttpEntity<Movie>(movie), 
+																	new HttpEntity<MovieDto>(movie), 
 																	Object.class);
 		CucumberScenarioContext.put("currentStatusCode", responseMovie.getStatusCode());
 	}
@@ -119,7 +115,7 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 	public void the_Movie_id_didn_t_match_the_id_in_uri() throws Throwable {
 		ResponseEntity<Object> responseMovie = restTemplate.exchange("http://localhost:8080/movieworld/movies/"+9999, 
 																		HttpMethod.PUT, 
-																		new HttpEntity<Movie>(movie), 
+																		new HttpEntity<MovieDto>(movie), 
 																		Object.class);
 		CucumberScenarioContext.put("currentStatusCode", responseMovie.getStatusCode());
 	}
@@ -128,7 +124,7 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 	public void client_requests_to_delete_a_movie_by_Id_that_exists(String arg1) throws Throwable {
 		ResponseEntity<Object> response = restTemplate.exchange("http://localhost:8080/movieworld/movies/"+(Boolean.valueOf(arg1)?globalContext.getMovie().getId():9999), 
 															HttpMethod.DELETE, 
-															new HttpEntity<Movie>(movie), 
+															new HttpEntity<MovieDto>(movie), 
 															Object.class);
 		CucumberScenarioContext.put("currentStatusCode", response.getStatusCode());
 	}

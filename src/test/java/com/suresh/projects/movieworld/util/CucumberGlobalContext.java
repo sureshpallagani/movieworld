@@ -2,12 +2,12 @@ package com.suresh.projects.movieworld.util;
 
 import org.springframework.stereotype.Component;
 
-import com.suresh.projects.movieworld.entities.Movie;
+import com.suresh.projects.movieworld.dto.MovieDto;
 
 @Component
 public class CucumberGlobalContext {
 	private long movieIdInTest;
-	private Movie movie;
+	private MovieDto movie;
 
 	public long getMovieIdInTest() {
 		return movieIdInTest;
@@ -17,11 +17,11 @@ public class CucumberGlobalContext {
 		this.movieIdInTest = movieIdInTest;
 	}
 
-	public Movie getMovie() {
+	public MovieDto getMovie() {
 		return movie;
 	}
 
-	public void setMovie(Movie movie) {
+	public void setMovie(MovieDto movie) {
 		this.movie = movie;
 	}
 	
