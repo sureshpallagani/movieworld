@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
+@SuppressWarnings("serial")
 @Entity
 public class Movie implements Serializable {
 	
@@ -18,7 +19,7 @@ public class Movie implements Serializable {
 	private long id;
 	private String title;
 	private int year;
-	@OneToOne(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+	@OneToOne(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
 	private MovieInfo info;
 	
 	public long getId() {

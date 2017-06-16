@@ -8,6 +8,7 @@ import com.suresh.projects.movieworld.dto.MovieDto;
 public class CucumberGlobalContext {
 	private long movieIdInTest;
 	private MovieDto movie;
+	private long newlyCreatedMovieId;
 
 	public long getMovieIdInTest() {
 		return movieIdInTest;
@@ -23,6 +24,14 @@ public class CucumberGlobalContext {
 
 	public void setMovie(MovieDto movie) {
 		this.movie = movie;
+	}
+
+	public long getNewlyCreatedMovieId() {
+		return newlyCreatedMovieId;
+	}
+
+	public void setNewlyCreatedMovieId(long newlyCreatedMovieId) {
+		this.newlyCreatedMovieId = newlyCreatedMovieId;
 	}
 	
 }

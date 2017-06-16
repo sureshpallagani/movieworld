@@ -14,15 +14,20 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.suresh.projects.movieworld.dto.MovieDto;
+import com.suresh.projects.movieworld.dto.MovieInfoDto;
 import com.suresh.projects.movieworld.dto.PaginatedResponse;
 import com.suresh.projects.movieworld.entities.Movie;
+import com.suresh.projects.movieworld.entities.MovieInfo;
 import com.suresh.projects.movieworld.exceptions.ApiException;
+import com.suresh.projects.movieworld.repositories.MovieInfoRepository;
 import com.suresh.projects.movieworld.repositories.MovieRepository;
 
 @Service
 public class MovieService {
 	@Autowired
 	private MovieRepository movieRepository;
+	@Autowired
+	private MovieInfoRepository movieInfoRepository;
 	@Autowired
 	private ModelMapper modelMapper;
 	
@@ -55,6 +60,7 @@ public class MovieService {
 		}
 	}
 
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void deleteMovie(long id) throws ApiException {
 		if (movieRepository.exists(id)) {
 			movieRepository.delete(id);
@@ -80,5 +86,36 @@ public class MovieService {
 		paginatedResponse.setContent(movieDtos);
 		return paginatedResponse;
 	}
-	
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public Optional<MovieInfoDto> saveInfo(MovieInfoDto movieInfoDto) {
+		if (movieRepository.exists(movieInfoDto.getId())) {
+			MovieInfo info = modelMapper.map(movieInfoDto, MovieInfo.class);
+			movieInfoRepository.save(info);
+			return Optional.of(modelMapper.map(info, MovieInfoDto.class));
+		} else {
+			return Optional.ofNullable(null);
+		}
+	}
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public Optional<MovieInfoDto> updateInfo(MovieInfoDto movieInfoDto) {
+		if(movieRepository.exists(movieInfoDto.getId())) {
+			MovieInfo info = modelMapper.map(movieInfoDto, MovieInfo.class);
+			movieInfoRepository.save(info);
+			return Optional.of(modelMapper.map(info, MovieInfoDto.class));
+		} else {
+			return Optional.ofNullable(null);
+		}
+	}
+
+	public Optional<MovieInfoDto> getInfo(long id) {
+		if (movieRepository.exists(id)) {
+			MovieInfo info = movieInfoRepository.findOne(id);
+			return Optional.of(modelMapper.map(info, MovieInfoDto.class));
+		} else {
+			return Optional.ofNullable(null);
+		}
+	}
+
 }

@@ -1,12 +1,18 @@
 package com.suresh.projects.movieworld.dto;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-public class MovieDto implements Serializable {
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class MovieDto {
 	
 	private long id;
 	private String title;
 	private int year;
+	private MovieInfoDto info;
+	
 	public long getId() {
 		return id;
 	}
@@ -24,6 +30,12 @@ public class MovieDto implements Serializable {
 	}
 	public void setYear(int year) {
 		this.year = year;
+	}
+	public MovieInfoDto getInfo() {
+		return info;
+	}
+	public void setInfo(MovieInfoDto info) {
+		this.info = info;
 	}
 
 }

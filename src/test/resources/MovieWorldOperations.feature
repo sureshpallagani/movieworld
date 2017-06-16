@@ -5,27 +5,30 @@ Feature: CRUD operations on Movie
 		Given movie details
 		|title|year|
 		|My Test Movie|2017|
-#		And movie info to be -- TODO
-#		|release_date|rating|image_url|plot|rank|running_time_secs|
-#		|01/01/2017|8.8|some image|some plot|110|5820|
-#		And directors to be
-#		|name|
-#		|first director|
-#		|second director|
-#		And actors to be
-#		|name|
-#		|male lead|
-#		|female lead|
-#		And genres to be
-#		|type|
-#		|Action|
-#		|Comedy|
 		When the client calls POST /movies
 		Then the client receives status code of 200
 		And movie should have an id
 		And movie should be
 		|title|year|
 		|My Test Movie|2017|
+	Scenario: Client POST Info for existing movie
+		Given movie info
+		|release_date|rating|image_url|plot|rank|running_time_secs|
+		|01/01/2017|8.8|some image|some plot|110|5820|
+		And directors as
+		|name|
+		|first director|
+		|second director|
+		And actors as
+		|name|
+		|male lead|
+		|female lead|
+		And genres as
+		|type|
+		|Action|
+		|Comedy|
+		When the client calls POST info
+		Then the client receives status code of 200
 	Scenario: Client can GET Movie
 		When Client requests for a movie by Id that exists "true"
 		Then the client receives status code of 200

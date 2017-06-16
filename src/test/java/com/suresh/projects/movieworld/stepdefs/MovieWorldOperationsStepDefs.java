@@ -3,6 +3,7 @@ package com.suresh.projects.movieworld.stepdefs;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.springframework.http.HttpEntity;
@@ -10,10 +11,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import com.suresh.projects.movieworld.MovieWorldApplicationTests;
+import com.suresh.projects.movieworld.dto.ActorDto;
+import com.suresh.projects.movieworld.dto.DirectorDto;
+import com.suresh.projects.movieworld.dto.GenreDto;
 import com.suresh.projects.movieworld.dto.MovieDto;
+import com.suresh.projects.movieworld.dto.MovieInfoDto;
 import com.suresh.projects.movieworld.dto.PaginatedResponse;
 import com.suresh.projects.movieworld.util.CucumberScenarioContext;
 
+import cucumber.api.DataTable;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -22,6 +28,7 @@ import cucumber.api.java.en.When;
 public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 	MovieDto response = null;
 	MovieDto movie = null;
+	MovieInfoDto info = null;
 	
 	@Before
 	public void init() {
@@ -39,25 +46,51 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 	    movie.setTitle(arg1.get(0).getTitle());
 	    movie.setYear(arg1.get(0).getYear());
 	}
+	
+	@Given("^directors as$")
+	public void directors_as(List<DirectorDto> arg1) throws Throwable {
+		info = CucumberScenarioContext.get("movieInfo", MovieInfoDto.class);
+		info.setDirectors(arg1);
+		CucumberScenarioContext.put("movieInfo", info);
+	}
 
-//	@Given("^movie info to be$")
-//	public void movie_info_to_be(List<MovieInfo> arg1) throws Throwable {
-//		movie.setInfo(arg1.get(0));
-//	}
-//	@Given("^directors to be$")
-//	public void directors_to_be(List<Director> arg1) throws Throwable {
-//		movie.getInfo().setDirectors(arg1);
-//	}
-//
-//	@Given("^actors to be$")
-//	public void actors_to_be(List<Actor> arg1) throws Throwable {
-//		movie.getInfo().setActors(arg1);
-//	}
-//
-//	@Given("^genres to be$")
-//	public void genres_to_be(List<Genre> arg1) throws Throwable {
-//		movie.getInfo().setGenres(arg1);
-//	}
+	@Given("^actors as$")
+	public void actors_as(List<ActorDto> arg1) throws Throwable {
+		info = CucumberScenarioContext.get("movieInfo", MovieInfoDto.class);
+		info.setActors(arg1);
+		CucumberScenarioContext.put("movieInfo", info);
+	}
+
+	@Given("^genres as$")
+	public void genres_as(List<GenreDto> arg1) throws Throwable {
+		info = CucumberScenarioContext.get("movieInfo", MovieInfoDto.class);
+	    info.setGenres(arg1);
+		CucumberScenarioContext.put("movieInfo", info);
+	}
+
+	@Given("^movie info$")
+	public void movie_info(DataTable arg1) throws Throwable {
+		info = new MovieInfoDto();
+		info.setId(globalContext.getNewlyCreatedMovieId());
+		CucumberScenarioContext.put("movieInfo", info);
+		SimpleDateFormat sdf = new SimpleDateFormat("mm/dd/yyyy");
+		MovieInfoDto movieInfo = CucumberScenarioContext.get("movieInfo", MovieInfoDto.class);
+		List<String> cells = arg1.getGherkinRows().get(1).getCells();
+		movieInfo.setRelease_date(sdf.parse(cells.get(0)));
+		movieInfo.setRating(Double.valueOf(cells.get(1)));
+		movieInfo.setImage_url(cells.get(2));
+		movieInfo.setPlot(cells.get(3));
+		movieInfo.setRank(Integer.parseInt(cells.get(4)));
+		movieInfo.setRunning_time_secs(Integer.parseInt(cells.get(5)));
+	}
+
+	@When("^the client calls POST info$")
+	public void the_client_calls_POST_movies_id_info() throws Throwable {
+		ResponseEntity<MovieInfoDto> responseMovie = restTemplate.postForEntity("http://localhost:8080/movieworld/movies/"+info.getId()+"/info", 
+				info, 
+				MovieInfoDto.class);
+		CucumberScenarioContext.put("currentStatusCode", responseMovie.getStatusCode());
+	}
 
 	@When("^the client calls POST /movies$")
 	public void the_client_calls_POST_movies() throws Throwable {
@@ -65,6 +98,7 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 																			movie, 
 																			MovieDto.class);
 		response = responseMovie.getBody();
+		globalContext.setNewlyCreatedMovieId(response.getId());
 		CucumberScenarioContext.put("currentStatusCode", responseMovie.getStatusCode());
 	}
 
