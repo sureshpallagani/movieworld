@@ -2,6 +2,7 @@ package com.suresh.projects.movieworld.controllers;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -11,7 +12,11 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,8 +27,13 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.hateoas.Resource;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.suresh.projects.movieworld.dto.MovieDto;
+import com.suresh.projects.movieworld.dto.Movies;
 import com.suresh.projects.movieworld.dto.PaginatedResponse;
 import com.suresh.projects.movieworld.exceptions.ApiException;
 import com.suresh.projects.movieworld.services.MovieService;
@@ -38,26 +48,34 @@ public class MovieControllerUT {
 	@Captor	ArgumentCaptor<Long> idCaptor;
 	
 	@Before
-	public void setUp() {
+	public void setup() {
 		initMocks(classToTest);
+	    HttpServletRequest mockRequest = new MockHttpServletRequest();
+	    ServletRequestAttributes servletRequestAttributes = new ServletRequestAttributes(mockRequest);
+	    RequestContextHolder.setRequestAttributes(servletRequestAttributes);
 	}
 
+	@After
+	public void teardown() {
+	    RequestContextHolder.resetRequestAttributes();
+	}	
+	
 	@Test
-	public void shouldFetchMovies() {
+	public void shouldFetchMovies() throws Exception {
 		List<MovieDto> movies = prepareTestMovies();
 		when(movieService.findAll()).thenReturn(movies);
-		PaginatedResponse actual = classToTest.findMovies(null, null);
-		assertEquals(movies, actual.getContent());
+		classToTest.findMovies(null, null);
+		verify(movieService).findAll();
 	}
 
 	@Test
-	public void shouldFetchPaginatedMovies() {
+	public void shouldFetchPaginatedMovies() throws Exception {
 		List<MovieDto> movies = prepareTestMovies();
 		PaginatedResponse expected = new PaginatedResponse();
-		expected.setContent(movies);
+		expected.setContent(movies.stream().map(m -> new Resource<MovieDto>(m)).collect(Collectors.toList()));
 		when(movieService.findPagenated(anyInt(), anyInt())).thenReturn(expected);
-		PaginatedResponse actual = classToTest.findMovies(2, 3);
-		assertEquals(expected, actual);
+		Resource<Movies> actual = classToTest.findMovies(2, 3);
+		assertEquals(expected.getContent(), actual.getContent().getMovies());
 	}
 	
 	@Test
@@ -80,14 +98,15 @@ public class MovieControllerUT {
 	public void findById_ShouldReturnMovie() throws Exception {
 		MovieDto expected = getTestMovie(10);
 		when(movieService.findById(10)).thenReturn(Optional.<MovieDto>of(expected));
-		MovieDto actual = classToTest.findMovieById(10);
-		assertEquals(expected, actual);
+		Resource<MovieDto> actual = classToTest.findMovieById(10);
+		assertEquals(expected, actual.getContent());
 	}
 	
 	@Test
-	public void createMovie_ShouldCreateMovie() {
+	public void createMovie_ShouldCreateMovie() throws Exception {
 		MovieDto expected = new MovieDto();
 		expected.setId(0);
+		when(movieService.createMovie(eq(expected))).thenReturn(expected);
 		classToTest.createMovie(expected);
 		verify(movieService).createMovie(movieCaptor.capture());
 		assertEquals(expected, movieCaptor.getValue());

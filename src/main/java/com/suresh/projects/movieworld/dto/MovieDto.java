@@ -1,10 +1,8 @@
 package com.suresh.projects.movieworld.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-@JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MovieDto {
 	
@@ -31,6 +29,8 @@ public class MovieDto {
 	public void setYear(int year) {
 		this.year = year;
 	}
+	
+	@JsonIgnore
 	public MovieInfoDto getInfo() {
 		return info;
 	}

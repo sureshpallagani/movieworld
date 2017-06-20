@@ -4,13 +4,15 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.ResourceSupport;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.suresh.projects.movieworld.dto.MovieDto;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PaginatedResponse {
-	private List<MovieDto> content;
+public class PaginatedResponse extends ResourceSupport {
+	private List<Resource<MovieDto>> content;
 	private boolean last;
 	private int totalPages;
 	private long totalElements;
@@ -18,10 +20,21 @@ public class PaginatedResponse {
 	private int sort;
 	private int numberOfElements;
 	private boolean first;
-	public List<MovieDto> getContent() {
+	private int page;
+	
+	public PaginatedResponse() {
+		super();
+	}
+
+	public PaginatedResponse(int page, int size) {
+		this.page = page;
+		this.size = size;
+	}
+	
+	public List<Resource<MovieDto>> getContent() {
 		return content;
 	}
-	public void setContent(List<MovieDto> content) {
+	public void setContent(List<Resource<MovieDto>> content) {
 		this.content = content;
 	}
 	public boolean isLast() {
@@ -66,5 +79,12 @@ public class PaginatedResponse {
 	public void setFirst(boolean first) {
 		this.first = first;
 	}
-	
+
+	public int getPage() {
+		return page;
+	}
+
+	public void setPage(int page) {
+		this.page = page;
+	}
 }
