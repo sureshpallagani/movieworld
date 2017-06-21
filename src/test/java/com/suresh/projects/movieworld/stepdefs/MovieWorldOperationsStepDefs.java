@@ -16,7 +16,7 @@ import com.suresh.projects.movieworld.dto.DirectorDto;
 import com.suresh.projects.movieworld.dto.GenreDto;
 import com.suresh.projects.movieworld.dto.MovieDto;
 import com.suresh.projects.movieworld.dto.MovieInfoDto;
-import com.suresh.projects.movieworld.dto.PaginatedResponse;
+import com.suresh.projects.movieworld.resources.MoviesResource;
 import com.suresh.projects.movieworld.util.CucumberScenarioContext;
 
 import cucumber.api.DataTable;
@@ -37,8 +37,10 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 
 	@Given("^movie that exists i want to set it in context for further scenarios in this feature\\.$")
 	public void movie_that_exists_i_want_to_set_it_in_context_for_further_scenarios_in_this_feature() throws Throwable {
-		ResponseEntity<PaginatedResponse> paginatedResponse = restTemplate.exchange("http://localhost:8080/movieworld/movies?page=0&size=1", HttpMethod.GET, null, PaginatedResponse.class);
-		globalContext.setMovie(paginatedResponse.getBody().getContent().get(0));
+		ResponseEntity<MoviesResource> movies = restTemplate.exchange("http://localhost:8080/movieworld/movies?page=1&size=5", 
+																					HttpMethod.GET, null, 
+																					MoviesResource.class);
+		globalContext.setMovie(movies.getBody().getMovies().get(0));
 	}
 	
 	@Given("^movie details$")
