@@ -13,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
+import org.springframework.util.StringUtils;
+
 @Entity
 public class MovieInfo {
 
@@ -84,7 +86,11 @@ public class MovieInfo {
 		return plot;
 	}
 	public void setPlot(String plot) {
-		this.plot = plot;
+		if (!StringUtils.isEmpty(plot) && plot.length() > 255) {
+			this.plot = plot.substring(0, 255);
+		} else {
+			this.plot = plot;
+		}
 	}
 	public int getRank() {
 		return rank;
