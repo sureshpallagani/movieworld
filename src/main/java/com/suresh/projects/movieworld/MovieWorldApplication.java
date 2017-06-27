@@ -1,6 +1,7 @@
 package com.suresh.projects.movieworld;
 
 import java.time.LocalDate;
+import java.util.concurrent.Executor;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
@@ -12,6 +13,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +28,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication(scanBasePackages = "com.suresh.projects.movieworld")
 @PropertySource("classpath:application.properties")
 @EnableSwagger2
+@EnableAsync
 public class MovieWorldApplication extends SpringBootServletInitializer {
 
 	/**
@@ -64,6 +68,21 @@ public class MovieWorldApplication extends SpringBootServletInitializer {
 	    return new ModelMapper();
 	}
 	
+	/**
+	 * By default a SimpleAsyncTaskExecutor is used to run Async tasks. Below is the customized.
+	 * @return
+	 */
+//    @Bean(name="taskExecutor")
+//    public Executor asyncExecutor() {
+//        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+//        executor.setCorePoolSize(2);
+//        executor.setMaxPoolSize(2);
+//        executor.setQueueCapacity(500);
+//        executor.setThreadNamePrefix("MovieWorldDataSetUp-");
+//        executor.initialize();
+//        return executor;
+//    }
+
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(MovieWorldApplication.class);
