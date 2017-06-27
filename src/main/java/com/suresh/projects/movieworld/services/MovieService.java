@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.Resource;
@@ -32,8 +33,11 @@ public class MovieService {
 	private MovieInfoRepository movieInfoRepository;
 	@Autowired
 	private ModelMapper modelMapper;
+	@Autowired
+	private CounterService counterService;
 	
 	public List<MovieDto> findAll() {
+		counterService.increment("service.movies.findAll");
 		List<MovieDto> movieDtos = new ArrayList<>();
 		movieRepository.findAll().forEach(m -> movieDtos.add(modelMapper.map(m, MovieDto.class)));
 		return movieDtos;
@@ -41,11 +45,13 @@ public class MovieService {
 	
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public MovieDto createMovie(MovieDto movieDto) {
+		counterService.increment("service.movies.createMovie");
 		Movie movie = movieRepository.saveAndFlush(modelMapper.map(movieDto, Movie.class));
 		return modelMapper.map(movie, MovieDto.class);
 	}
 
 	public Optional<MovieDto> findById(long id) {
+		counterService.increment("service.movies.findById");
 		Optional<Movie> movie = Optional.ofNullable(movieRepository.findOne(id));
 		if (movie.isPresent()) {
 			return Optional.of(modelMapper.map(movie.get(), MovieDto.class));
@@ -80,6 +86,7 @@ public class MovieService {
 	}
 	
 	public PaginatedResponse findPagenated(Integer page, Integer size) {
+		counterService.increment("service.movies.findPagenated");
 		Page<Movie> movies = movieRepository.findAll(new PageRequest(page, size));
 		PaginatedResponse paginatedResponse = modelMapper.map(movies, PaginatedResponse.class);
 		paginatedResponse.setContent(movies.getContent()
