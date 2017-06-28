@@ -15,14 +15,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.suresh.projects.movieworld.entities.MovieSetUp;
 import com.suresh.projects.movieworld.entities.SetUpOperation;
 import com.suresh.projects.movieworld.entities.SetUpStatus;
-import com.suresh.projects.movieworld.repositories.MovieSetUpRepository;
+import com.suresh.projects.movieworld.repositories.jpa.JpaMovieSetUpRepository;
 import com.suresh.projects.movieworld.services.SetUpAsyncService;
 
 @RestController
 public class SetUpController {
 	
 	@Autowired private SetUpAsyncService setUpAsyncService; 
-	@Autowired private MovieSetUpRepository setupRepository;
+	@Autowired private JpaMovieSetUpRepository setupRepository;
 
 	@PostMapping("/setup")
 	@ResponseStatus(HttpStatus.ACCEPTED)

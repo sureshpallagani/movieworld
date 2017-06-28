@@ -11,15 +11,15 @@ import org.springframework.stereotype.Service;
 import com.suresh.projects.movieworld.entities.Movie;
 import com.suresh.projects.movieworld.entities.MovieSetUp;
 import com.suresh.projects.movieworld.entities.SetUpStatus;
-import com.suresh.projects.movieworld.repositories.MovieRepository;
-import com.suresh.projects.movieworld.repositories.MovieSetUpRepository;
+import com.suresh.projects.movieworld.repositories.jpa.JpaMovieRepository;
+import com.suresh.projects.movieworld.repositories.jpa.JpaMovieSetUpRepository;
 
 @Service
 public class SetUpAsyncService {
 
-	@Autowired private MovieSetUpRepository setupRepository;
+	@Autowired private JpaMovieSetUpRepository setupRepository;
 	@Autowired private AwsS3FileService awsS3FileService;
-	@Autowired private MovieRepository movieRepository;
+	@Autowired private JpaMovieRepository movieRepository;
 
 	@Async
 	public Future<Long> createMovieSetup(MovieSetUp setUp) throws Exception {

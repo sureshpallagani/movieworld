@@ -22,15 +22,15 @@ import com.suresh.projects.movieworld.dto.PaginatedResponse;
 import com.suresh.projects.movieworld.entities.Movie;
 import com.suresh.projects.movieworld.entities.MovieInfo;
 import com.suresh.projects.movieworld.exceptions.ApiException;
-import com.suresh.projects.movieworld.repositories.MovieInfoRepository;
-import com.suresh.projects.movieworld.repositories.MovieRepository;
+import com.suresh.projects.movieworld.repositories.jpa.JpaMovieInfoRepository;
+import com.suresh.projects.movieworld.repositories.jpa.JpaMovieRepository;
 
 @Service
 public class MovieService {
 	@Autowired
-	private MovieRepository movieRepository;
+	private JpaMovieRepository movieRepository;
 	@Autowired
-	private MovieInfoRepository movieInfoRepository;
+	private JpaMovieInfoRepository movieInfoRepository;
 	@Autowired
 	private ModelMapper modelMapper;
 	@Autowired

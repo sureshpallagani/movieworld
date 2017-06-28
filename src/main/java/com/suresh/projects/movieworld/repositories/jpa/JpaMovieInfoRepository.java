@@ -1,4 +1,4 @@
-package com.suresh.projects.movieworld.repositories;
+package com.suresh.projects.movieworld.repositories.jpa;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.suresh.projects.movieworld.entities.MovieInfo;
 
 @Repository
-public interface MovieInfoRepository extends JpaRepository<MovieInfo, Long> {
+public interface JpaMovieInfoRepository extends JpaRepository<MovieInfo, Long> {
 
 }
