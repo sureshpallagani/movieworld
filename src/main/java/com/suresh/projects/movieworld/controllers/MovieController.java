@@ -6,11 +6,13 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import  java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,12 +22,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.suresh.projects.movieworld.dto.MovieDto;
-import com.suresh.projects.movieworld.dto.Movies;
-import com.suresh.projects.movieworld.dto.PaginatedResponse;
+import com.suresh.projects.movieworld.entities.Movie;
 import com.suresh.projects.movieworld.exceptions.ApiException;
 import com.suresh.projects.movieworld.services.MovieService;
 
@@ -36,18 +36,8 @@ public class MovieController {
 	private MovieService movieService;
 	
 	@GetMapping(value = "/movies", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Resource<Movies> findMovies(@RequestParam(value="page", required = false) Integer page, 
-										@RequestParam(value="size", required = false) Integer size) throws Exception {
-		if (Optional.ofNullable(page).isPresent() && Optional.ofNullable(size).isPresent()) {
-			return aListOfResources(movieService.findPagenated(page, size));
-		} else {
-			PaginatedResponse response = new PaginatedResponse();
-			response.setContent(movieService.findAll()
-											.stream()
-											.map(m -> new Resource<MovieDto>(m))
-											.collect(Collectors.toList()));
-			return aListOfResources(response);
-		}
+	public PagedResources<Movie> findMovies(Pageable pageable, PagedResourcesAssembler<Movie> assembler) throws Exception {
+		return movieService.findAllPagenated(pageable, assembler);
 	}
 	
 	@GetMapping(value = "/movies/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -88,22 +78,4 @@ public class MovieController {
 		return resource;
 	}
 	
-	private Resource<Movies> aListOfResources(PaginatedResponse movies) throws Exception, ApiException {
-		Movies moviesAsResource = new Movies();
-		moviesAsResource.setMovies(movies.getContent());
-		Resource<Movies> resource = new Resource<Movies>(moviesAsResource);
-		if (movies.getPage() > 0) {
-			resource.add(linkTo(methodOn(MovieController.class).findMovies(movies.getPage(), movies.getSize())).withSelfRel());
-			if (!movies.isFirst()) {
-				resource.add(linkTo(methodOn(MovieController.class).findMovies(movies.getPage()-1, movies.getSize())).withRel("previousPage"));
-				resource.add(linkTo(methodOn(MovieController.class).findMovies(1, movies.getSize())).withRel("firstPage"));
-			}
-			if (!movies.isLast()) {
-				resource.add(linkTo(methodOn(MovieController.class).findMovies(movies.getPage()+1, movies.getSize())).withRel("nextPage"));
-				resource.add(linkTo(methodOn(MovieController.class).findMovies(movies.getTotalPages()-1, movies.getSize())).withRel("lastPage"));
-
-			}
-		}
-		return resource;
-	}
 }

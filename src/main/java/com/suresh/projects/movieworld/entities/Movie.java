@@ -10,6 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @SuppressWarnings("serial")
 @Entity
 public class Movie implements Serializable {
@@ -40,6 +42,8 @@ public class Movie implements Serializable {
 	public void setYear(int year) {
 		this.year = year;
 	}
+	
+	@JsonIgnore
 	public MovieInfo getInfo() {
 		return info;
 	}

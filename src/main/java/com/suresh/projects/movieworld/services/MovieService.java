@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -126,6 +129,10 @@ public class MovieService {
 		} else {
 			return Optional.ofNullable(null);
 		}
+	}
+
+	public PagedResources<Movie> findAllPagenated(Pageable pageable, PagedResourcesAssembler assembler) {
+		return assembler.toResource(movieRepository.findAll(pageable));
 	}
 
 }
