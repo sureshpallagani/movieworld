@@ -63,9 +63,11 @@ public class MovieControllerUT {
 	@Test
 	public void shouldFetchMovies() throws Exception {
 		List<MovieDto> movies = prepareTestMovies();
-		when(movieService.findAll()).thenReturn(movies);
+		PaginatedResponse expected = new PaginatedResponse();
+		expected.setContent(movies.stream().map(m -> new Resource<MovieDto>(m)).collect(Collectors.toList()));
+		when(movieService.findPagenated(anyInt(), anyInt())).thenReturn(expected);
 		classToTest.findMovies(null, null);
-		verify(movieService).findAll();
+		verify(movieService).findPagenated(eq(1), eq(20));
 	}
 
 	@Test

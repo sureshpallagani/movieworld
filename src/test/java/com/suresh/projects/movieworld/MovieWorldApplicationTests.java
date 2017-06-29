@@ -10,6 +10,6 @@ import com.suresh.projects.movieworld.util.CucumberGlobalContext;
 @ContextConfiguration
 @SpringBootTest(classes = MovieWorldApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MovieWorldApplicationTests {
-	@Autowired protected TestRestTemplate restTemplate;
+	@Autowired protected TestRestTemplate testRestTemplate;
 	@Autowired protected CucumberGlobalContext globalContext;
 }

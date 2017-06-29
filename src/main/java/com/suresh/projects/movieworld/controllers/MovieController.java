@@ -6,7 +6,6 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import  java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 
@@ -35,18 +34,13 @@ public class MovieController {
 	@Autowired
 	private MovieService movieService;
 	
-	@GetMapping(value = "/movies", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/movies")
 	public Resource<Movies> findMovies(@RequestParam(value="page", required = false) Integer page, 
 										@RequestParam(value="size", required = false) Integer size) throws Exception {
 		if (Optional.ofNullable(page).isPresent() && Optional.ofNullable(size).isPresent()) {
 			return aListOfResources(movieService.findPagenated(page, size));
 		} else {
-			PaginatedResponse response = new PaginatedResponse();
-			response.setContent(movieService.findAll()
-											.stream()
-											.map(m -> new Resource<MovieDto>(m))
-											.collect(Collectors.toList()));
-			return aListOfResources(response);
+			return aListOfResources(movieService.findPagenated(1, 20));
 		}
 	}
 	

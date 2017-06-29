@@ -37,7 +37,7 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 
 	@Given("^movie that exists i want to set it in context for further scenarios in this feature\\.$")
 	public void movie_that_exists_i_want_to_set_it_in_context_for_further_scenarios_in_this_feature() throws Throwable {
-		ResponseEntity<MoviesResource> movies = restTemplate.exchange("http://localhost:8080/movieworld/movies?page=1&size=5", 
+		ResponseEntity<MoviesResource> movies = testRestTemplate.exchange("http://localhost:8080/movieworld/movies?page=1&size=5", 
 																					HttpMethod.GET, null, 
 																					MoviesResource.class);
 		globalContext.setMovie(movies.getBody().getMovies().get(0));
@@ -88,7 +88,7 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 
 	@When("^the client calls POST info$")
 	public void the_client_calls_POST_movies_id_info() throws Throwable {
-		ResponseEntity<MovieInfoDto> responseMovie = restTemplate.postForEntity("http://localhost:8080/movieworld/movies/"+info.getId()+"/info", 
+		ResponseEntity<MovieInfoDto> responseMovie = testRestTemplate.postForEntity("http://localhost:8080/movieworld/movies/"+info.getId()+"/info", 
 				info, 
 				MovieInfoDto.class);
 		CucumberScenarioContext.put("currentStatusCode", responseMovie.getStatusCode());
@@ -96,7 +96,7 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 
 	@When("^the client calls POST /movies$")
 	public void the_client_calls_POST_movies() throws Throwable {
-		ResponseEntity<MovieDto> responseMovie = restTemplate.postForEntity("http://localhost:8080/movieworld/movies", 
+		ResponseEntity<MovieDto> responseMovie = testRestTemplate.postForEntity("http://localhost:8080/movieworld/movies", 
 																			movie, 
 																			MovieDto.class);
 		response = responseMovie.getBody();
@@ -118,11 +118,11 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 	@When("^Client requests for a movie by Id that exists \"([^\"]*)\"$")
 	public void client_requests_for_a_movie_by_Id_that_exists(String arg1) throws Throwable {
 		if (Boolean.valueOf(arg1) == Boolean.TRUE) {
-			ResponseEntity<MovieDto> response = restTemplate.getForEntity("http://localhost:8080/movieworld/movies/"+globalContext.getMovie().getId(), MovieDto.class);
+			ResponseEntity<MovieDto> response = testRestTemplate.getForEntity("http://localhost:8080/movieworld/movies/"+globalContext.getMovie().getId(), MovieDto.class);
 			CucumberScenarioContext.put("currentStatusCode", response.getStatusCode());
 			CucumberScenarioContext.put("MovieInTest", response.getBody());
 		} else {
-			ResponseEntity<Object> response = restTemplate.getForEntity("http://localhost:8080/movieworld/movies/"+9999, Object.class);
+			ResponseEntity<Object> response = testRestTemplate.getForEntity("http://localhost:8080/movieworld/movies/"+9999, Object.class);
 			CucumberScenarioContext.put("currentStatusCode", response.getStatusCode());
 		}
 	}
@@ -139,7 +139,7 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 		if (Boolean.valueOf(arg1) == Boolean.FALSE) {
 			movie.setId(9999);
 		}
-		ResponseEntity<Object> responseMovie = restTemplate.exchange("http://localhost:8080/movieworld/movies/"+(Boolean.valueOf(arg1)?globalContext.getMovie().getId():9999), 
+		ResponseEntity<Object> responseMovie = testRestTemplate.exchange("http://localhost:8080/movieworld/movies/"+(Boolean.valueOf(arg1)?globalContext.getMovie().getId():9999), 
 																	HttpMethod.PUT, 
 																	new HttpEntity<MovieDto>(movie), 
 																	Object.class);
@@ -149,7 +149,7 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 
 	@When("^The Movie id didn't match the id in uri$")
 	public void the_Movie_id_didn_t_match_the_id_in_uri() throws Throwable {
-		ResponseEntity<Object> responseMovie = restTemplate.exchange("http://localhost:8080/movieworld/movies/"+9999, 
+		ResponseEntity<Object> responseMovie = testRestTemplate.exchange("http://localhost:8080/movieworld/movies/"+9999, 
 																		HttpMethod.PUT, 
 																		new HttpEntity<MovieDto>(movie), 
 																		Object.class);
@@ -158,7 +158,7 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 
 	@When("^Client requests to delete a movie by Id that exists \"([^\"]*)\"$")
 	public void client_requests_to_delete_a_movie_by_Id_that_exists(String arg1) throws Throwable {
-		ResponseEntity<Object> response = restTemplate.exchange("http://localhost:8080/movieworld/movies/"+(Boolean.valueOf(arg1)?globalContext.getMovie().getId():9999), 
+		ResponseEntity<Object> response = testRestTemplate.exchange("http://localhost:8080/movieworld/movies/"+(Boolean.valueOf(arg1)?globalContext.getMovie().getId():9999), 
 															HttpMethod.DELETE, 
 															new HttpEntity<MovieDto>(movie), 
 															Object.class);

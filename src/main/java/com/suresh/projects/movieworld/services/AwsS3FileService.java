@@ -21,6 +21,7 @@ import com.suresh.projects.movieworld.entities.Movie;
 public class AwsS3FileService {
 	@Autowired private AwsPropertiesHelper awsPropertiesHelper;
 	
+	@SuppressWarnings("unchecked")
 	public List<Movie> getMovieDataFromS3() {
 		//Using US East 2 region. This needs to be changed accordingly.
 		try {
