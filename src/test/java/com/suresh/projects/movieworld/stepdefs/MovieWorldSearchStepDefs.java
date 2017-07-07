@@ -4,9 +4,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.hal.Jackson2HalModule;
@@ -14,13 +15,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.suresh.projects.movieworld.MovieWorldApplicationTests;
 import com.suresh.projects.movieworld.dto.Movies;
 import com.suresh.projects.movieworld.util.CucumberScenarioContext;
 
@@ -29,19 +27,28 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
-public class MovieWorldSearchStepDefs extends MovieWorldApplicationTests {
+public class MovieWorldSearchStepDefs {
 	ResponseEntity<Resource<Movies>> paginatedResponse = null;
 	private String urlAppend = "";
-	RestTemplate rt = new RestTemplate();
+	
+	@Autowired private TestRestTemplate restTemplate;
 	
 	@Before
 	public void setUp() {
+	    ObjectMapper mapper = new ObjectMapper();
+	    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	    mapper.registerModule(new Jackson2HalModule());
+	    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(mapper);
+	    converter.setSupportedMediaTypes(Arrays.asList(MediaType.APPLICATION_JSON));
+	    restTemplate.getRestTemplate().getMessageConverters().clear();
+	    restTemplate.getRestTemplate().getMessageConverters().add(converter);
+	    
 		urlAppend = "";
 	}
 	
 	@When("^the client calls /movies$")
 	public void the_client_calls_movies() throws Throwable {
-		paginatedResponse = getRestTemplate().exchange("http://localhost:8080/movieworld/movies"+urlAppend, HttpMethod.GET, null, new ParameterizedTypeReference<Resource<Movies>>() {});
+		paginatedResponse = restTemplate.exchange("http://localhost:8080/movieworld/movies"+urlAppend, HttpMethod.GET, null, new ParameterizedTypeReference<Resource<Movies>>() {});
 		CucumberScenarioContext.put("currentStatusCode", paginatedResponse.getStatusCode());
 	    assertNotNull(paginatedResponse);
 	}
@@ -65,21 +72,6 @@ public class MovieWorldSearchStepDefs extends MovieWorldApplicationTests {
 	@Then("^client receives (\\d+) movies$")
 	public void client_receives_movies(int arg1) throws Throwable {
 		assertThat("Should return " + arg1 + " elements", paginatedResponse.getBody().getContent().getMovies().size(), equalTo(arg1));
-	}
-
-	protected RestTemplate getRestTemplate() {
-	    ObjectMapper mapper = new ObjectMapper();
-	    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-	    mapper.registerModule(new Jackson2HalModule());
-
-	    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-	    converter.setSupportedMediaTypes(MediaType.parseMediaTypes("application/hal+json"));
-	    converter.setObjectMapper(mapper);
-
-	    List<HttpMessageConverter<?>> converterList = new ArrayList<HttpMessageConverter<?>>();
-	    converterList.add(converter);
-	    RestTemplate restTemplate = new RestTemplate(converterList);
-	    return restTemplate;
 	}
 
 }

@@ -4,19 +4,27 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.hateoas.hal.Jackson2HalModule;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
-import com.suresh.projects.movieworld.MovieWorldApplicationTests;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.suresh.projects.movieworld.dto.ActorDto;
 import com.suresh.projects.movieworld.dto.DirectorDto;
 import com.suresh.projects.movieworld.dto.GenreDto;
 import com.suresh.projects.movieworld.dto.MovieDto;
 import com.suresh.projects.movieworld.dto.MovieInfoDto;
 import com.suresh.projects.movieworld.resources.MoviesResource;
+import com.suresh.projects.movieworld.util.CucumberGlobalContext;
 import com.suresh.projects.movieworld.util.CucumberScenarioContext;
 
 import cucumber.api.DataTable;
@@ -25,7 +33,11 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
-public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
+public class MovieWorldOperationsStepDefs {
+
+	@Autowired protected TestRestTemplate testRestTemplate;
+	@Autowired protected CucumberGlobalContext globalContext;
+
 	MovieDto response = null;
 	MovieDto movie = null;
 	MovieInfoDto info = null;
@@ -33,6 +45,13 @@ public class MovieWorldOperationsStepDefs extends MovieWorldApplicationTests {
 	@Before
 	public void init() {
 		movie = new MovieDto();
+	    ObjectMapper mapper = new ObjectMapper();
+	    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	    mapper.registerModule(new Jackson2HalModule());
+	    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(mapper);
+	    converter.setSupportedMediaTypes(Arrays.asList(MediaType.APPLICATION_JSON, MediaType.parseMediaType("application/hal+json")));
+	    testRestTemplate.getRestTemplate().getMessageConverters().clear();
+	    testRestTemplate.getRestTemplate().getMessageConverters().add(converter);
 	}
 
 	@Given("^movie that exists i want to set it in context for further scenarios in this feature\\.$")

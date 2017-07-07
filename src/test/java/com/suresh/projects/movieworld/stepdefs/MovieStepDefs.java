@@ -3,6 +3,7 @@ package com.suresh.projects.movieworld.stepdefs;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.suresh.projects.movieworld.MovieWorldApplicationTests;
 import com.suresh.projects.movieworld.dto.ActorDto;
 import com.suresh.projects.movieworld.dto.DirectorDto;
 import com.suresh.projects.movieworld.dto.GenreDto;
@@ -13,7 +14,8 @@ import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import gherkin.formatter.model.DataTableRow;
 
-public class MovieStepDefs {
+public class MovieStepDefs extends MovieWorldApplicationTests {
+	
 	@Given("^movie$")
 	public void movie(DataTable arg1) throws Throwable {
 		List<DataTableRow> rows = arg1.getGherkinRows();
