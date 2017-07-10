@@ -2,6 +2,7 @@ package com.suresh.projects.movieworld.controllers;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,20 +38,6 @@ public class SetUpController {
 		response.setHeader("Location", location);
 	}
 	
-	@PostMapping("/mongo/setup")
-	@ResponseStatus(HttpStatus.ACCEPTED)
-	public void prepareMoviesForMongo(HttpServletResponse response, UriComponentsBuilder uriComponentsBuilder) throws Exception {
-		MovieSetUp setUp = setUpFor(SetUpOperation.CREATE, TYPE_MONGO);
-		setUpAsyncService.createMovieSetupForMongo(setUp);
-		final String location = uriComponentsBuilder.path("/mongo/setup"+"/"+setUp.getId()).build().encode().toString();
-		response.setHeader("Location", location);
-	}
-	
-	@GetMapping("/mongo/setup/{id}")
-	public MovieSetUp getSetUpStatusOnMongo(@PathVariable long id) {
-		return setUpAsyncService.getSetUpStatusOnMongo(id);
-	}
-	
 	@GetMapping("/setup/{id}")
 	public MovieSetUp getSetUpStatus(@PathVariable long id) {
 		return setUpAsyncService.getSetUpStatus(id);
@@ -65,10 +52,32 @@ public class SetUpController {
 		response.setHeader("Location", location);
 	}
 	
+	@PostMapping("/mongo/setup")
+	@ResponseStatus(HttpStatus.ACCEPTED)
+	public void prepareMoviesForMongo(HttpServletResponse response, UriComponentsBuilder uriComponentsBuilder) throws Exception {
+		MovieSetUp setUp = setUpFor(SetUpOperation.CREATE, TYPE_MONGO);
+		setUpAsyncService.createMovieSetupForMongo(setUp);
+		response.setHeader("Location", uriComponentsBuilder.path("/mongo/setup"+"/"+setUp.getId()).build().encode().toString());
+	}
+	
+	@GetMapping("/mongo/setup/{id}")
+	public MovieSetUp getSetUpStatusOnMongo(@PathVariable long id) {
+		return setUpAsyncService.getSetUpStatusOnMongo(id);
+	}
+	
+	@DeleteMapping("/mongo/setup")
+	@ResponseStatus(HttpStatus.ACCEPTED)
+	public void clearMongoData(HttpServletResponse response, UriComponentsBuilder uriComponentsBuilder) throws Exception {
+		MovieSetUp setUp = setUpFor(SetUpOperation.DELETE, TYPE_MONGO);
+		setUpAsyncService.deleteSetUpForMongo(setUp);
+		response.setHeader("Location", uriComponentsBuilder.path("/setup"+"/"+setUp.getId()).build().encode().toString());
+	}
+
 	private MovieSetUp setUpFor(SetUpOperation op, String type) {
 		MovieSetUp setUp = new MovieSetUp();
 		setUp.setOperation(op);
 		setUp.setStatus(SetUpStatus.INPROGRESS);
+		setUp.setStartTime(DateTime.now().toDate());
 		switch (type) {
 		case "MONGO":
 			setUp.setId(mongoMovieSetupRepository.count() + 1);

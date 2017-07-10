@@ -1,10 +1,12 @@
 package com.suresh.projects.movieworld.services;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
@@ -36,7 +38,18 @@ public class SetUpAsyncService {
 				movieRepository.save(movies.get(i));
 			}
 		}
+		setUp.setEndTime(DateTime.now().toDate());
 		setUp.setStatus(SetUpStatus.COMPLETED);
+		setupRepository.saveAndFlush(setUp);
+		return new AsyncResult<Long>(setUp.getId());
+	}
+
+	@Async
+	public Future<Long> deleteSetUp(MovieSetUp setUp) throws Exception {
+		List<Movie> movies = movieRepository.findAll();
+		movies.parallelStream().forEach(m -> {movieRepository.delete(m);});
+		setUp.setStatus(SetUpStatus.COMPLETED);
+		setUp.setEndTime(DateTime.now().toDate());
 		setupRepository.saveAndFlush(setUp);
 		return new AsyncResult<Long>(setUp.getId());
 	}
@@ -44,19 +57,30 @@ public class SetUpAsyncService {
 	@Async
 	public Future<Long> createMovieSetupForMongo(MovieSetUp setUp) {
 		List<Movie> movies = awsS3FileService.getMovieDataFromS3();
-		List<Movie> toSave = new ArrayList<>();
-		for(int i=0; i<movies.size(); i++) {
-			if (i == 11) {
-				break;
-			}
-			if (i % 10 == 0) {
-				mongoRepository.insert(toSave);
-				toSave.clear();
-			} else {
-				toSave.add(movies.get(i));
-			}
+		long count = mongoRepository.count();
+		movies.subList(0, 1000).forEach(m -> {
+												m.setId(count + movies.indexOf(m));
+												mongoRepository.insert(m);
+												try {
+													Thread.sleep(500); //give half second for each insert just not to max out IOPS to stay in free tier.
+												} catch (InterruptedException e) {
+													e.printStackTrace();
+												}
+											});
+		setUp.setStatus(SetUpStatus.COMPLETED);
+		setUp.setEndTime(DateTime.now().toDate());
+		mongoSetupRepo.save(setUp);
+		return new AsyncResult<Long>(setUp.getId());
+	}
+
+	@Async
+	public Future<Long> deleteSetUpForMongo(MovieSetUp setUp) {
+		while(mongoRepository.count() != 0) {
+			Page<Movie> movies = mongoRepository.findAll(new PageRequest(0, 10));
+			movies.getContent().forEach(m -> mongoRepository.delete(m));
 		}
 		setUp.setStatus(SetUpStatus.COMPLETED);
+		setUp.setEndTime(DateTime.now().toDate());
 		mongoSetupRepo.save(setUp);
 		return new AsyncResult<Long>(setUp.getId());
 	}
@@ -69,12 +93,4 @@ public class SetUpAsyncService {
 		return mongoSetupRepo.findOne(id);
 	}
 
-	@Async
-	public Future<Long> deleteSetUp(MovieSetUp setUp) throws Exception {
-		List<Movie> movies = movieRepository.findAll();
-		movies.parallelStream().forEach(m -> {movieRepository.delete(m);});
-		setUp.setStatus(SetUpStatus.COMPLETED);
-		setupRepository.saveAndFlush(setUp);
-		return new AsyncResult<Long>(setUp.getId());
-	}
 }

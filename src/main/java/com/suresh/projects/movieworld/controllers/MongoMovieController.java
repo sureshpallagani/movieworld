@@ -17,10 +17,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.suresh.projects.movieworld.entities.Movie;
 import com.suresh.projects.movieworld.repositories.mongo.MongoMovieRepository;
+
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 public class MongoMovieController {
@@ -28,17 +31,24 @@ public class MongoMovieController {
 	@Autowired
 	private MongoMovieRepository repository;
 	
+	@ApiOperation(value = "Movies Search Options")
 	@GetMapping(value = "/mongo/movies", produces = MediaType.APPLICATION_JSON_VALUE)
-	public PagedResources<Resource<Movie>> findAll(Pageable pageable, PagedResourcesAssembler<Movie> assembler) throws Exception {
+	public PagedResources<Resource<Movie>> findAll(Pageable pageable, PagedResourcesAssembler<Movie> assembler, 
+													@RequestParam(name = "actors", required = false) String actors,
+													@RequestParam(name = "directors", required = false) String directors,
+													@RequestParam(name = "genres", required = false) String genres) throws Exception {
+		
 		return assembler.toResource(repository.findAll(pageable));
 	}
 	
+	@ApiOperation(value = "Find Movie by Id")
 	@GetMapping(value = "/mongo/movies/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Resource<Movie> findById(@PathVariable Long id) {
 		Link selfLink = linkTo(methodOn(MongoMovieController.class).findById(id)).withSelfRel();
 		return new Resource<Movie>(repository.findOne(id), selfLink);
 	}
 	
+	@ApiOperation(value = "Create movie")
 	@PostMapping(value = "/mongo/movies", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Movie createMovie(@RequestBody @NotNull Movie movie) throws Exception {
 		return repository.save(movie);
