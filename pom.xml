@@ -139,7 +139,18 @@
 		    <artifactId>springfox-swagger-ui</artifactId>
 		    <version>${swagger2.version}</version>
 		</dependency>
-		
+
+		<!-- Query DSL for JPA/MongoDB queries -->
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-jpa</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>com.querydsl</groupId>
+			<artifactId>querydsl-apt</artifactId>
+			<scope>provided</scope>
+		</dependency>
+            		
 		<dependency>
 		    <groupId>org.hamcrest</groupId>
 		    <artifactId>hamcrest-library</artifactId>
@@ -194,6 +205,23 @@
 					</includes>
 				</configuration>
 			</plugin>
+			<!-- Plugin to generate Query types for entities -->
+		    <plugin>
+		      <groupId>com.mysema.maven</groupId>
+		      <artifactId>apt-maven-plugin</artifactId>
+		      <executions>
+		        <execution>
+		          <goals>
+		            <goal>process</goal>
+		          </goals>
+		          <configuration>
+		            <outputDirectory>target/generated-sources/java</outputDirectory>
+		            <!-- My entities are JPA annotated so using JPAAnnotationProcessor, for Hibernate use HibernateAnnotationProcessor -->
+		            <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+		          </configuration>
+		        </execution>
+		      </executions>
+		    </plugin>
 		</plugins>
 	</build>
 
