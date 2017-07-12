@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.suresh.projects.movieworld.entities.Movie;
+import com.suresh.projects.movieworld.entities.QMovie;
 import com.suresh.projects.movieworld.repositories.mongo.MongoMovieRepository;
 
 import io.swagger.annotations.ApiOperation;
@@ -48,8 +49,8 @@ public class MongoMovieController {
 			return assembler.toResource(repository.findByYear(year, pageable));
 		}
 		if (!isEmpty(actors)) {
-			QMovie movie = new QMovie();
-			return assembler.toResource(repository.findAll(pageable));
+			QMovie movie = QMovie.movie;
+			return assembler.toResource(repository.findAll(movie.info.actors.any().name.eq(actors), pageable));
 		}
 		return assembler.toResource(repository.findAll(pageable));
 	}

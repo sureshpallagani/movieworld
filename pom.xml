@@ -141,15 +141,19 @@
 		</dependency>
 
 		<!-- Query DSL for JPA/MongoDB queries -->
-        <dependency>
+<!--         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-jpa</artifactId>
-        </dependency>
+        </dependency>  -->
 		<dependency>
-			<groupId>com.querydsl</groupId>
-			<artifactId>querydsl-apt</artifactId>
-			<scope>provided</scope>
+		  <groupId>com.mysema.querydsl</groupId>
+		  <artifactId>querydsl-mongodb</artifactId>
+		  <version>3.7.4</version>
 		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>com.querydsl</groupId> -->
+<!-- 			<artifactId>querydsl-apt</artifactId> -->
+<!-- 		</dependency> -->
             		
 		<dependency>
 		    <groupId>org.hamcrest</groupId>
@@ -206,23 +210,24 @@
 				</configuration>
 			</plugin>
 			<!-- Plugin to generate Query types for entities -->
-		    <plugin>
-		      <groupId>com.mysema.maven</groupId>
-		      <artifactId>apt-maven-plugin</artifactId>
-		      <executions>
-		        <execution>
-		          <goals>
-		            <goal>process</goal>
-		          </goals>
-		          <configuration>
-		            <outputDirectory>target/generated-sources/java</outputDirectory>
-		            <!-- My entities are JPA annotated so using JPAAnnotationProcessor, for Hibernate use HibernateAnnotationProcessor -->
-		            <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
-		          </configuration>
-		        </execution>
-		      </executions>
-		    </plugin>
-		</plugins>
+			<plugin>
+		        <groupId>com.mysema.maven</groupId>
+		        <artifactId>maven-apt-plugin</artifactId>
+		        <version>1.0.4</version>
+		        <executions>
+		          <execution>
+		            <goals>
+		              <goal>process</goal>
+		            </goals>
+		            <configuration>
+		              <outputDirectory>target/generated-sources/java</outputDirectory>
+		              <processor>com.mysema.query.mongodb.MongodbAnnotationProcessor</processor>
+		              <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+		            </configuration>
+		          </execution>
+		        </executions>
+		      </plugin>
+ 		</plugins>
 	</build>
 
 	<profiles>
