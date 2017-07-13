@@ -39,7 +39,7 @@ public class MovieService {
 	public List<MovieDto> findAll() {
 		counterService.increment("service.movies.findAll");
 		List<MovieDto> movieDtos = new ArrayList<>();
-		movieRepository.findAll().forEach(m -> movieDtos.add(modelMapper.map(m, MovieDto.class)));
+		movieRepository.findAll(new PageRequest(0, 20)).forEach(m -> movieDtos.add(modelMapper.map(m, MovieDto.class)));
 		return movieDtos;
 	}
 	
