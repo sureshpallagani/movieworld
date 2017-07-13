@@ -11,6 +11,8 @@ import com.suresh.projects.movieworld.entities.Movie;
 @Repository
 public interface MongoMovieRepository extends MongoRepository<Movie, Long>, QueryDslPredicateExecutor<Movie> {
 
-	Page<Movie> findByYear(int year, Pageable pageable);
+	Page<Movie> findByYearOrderByTitle(int year, Pageable pageable);
+
+	Page<Movie> findByTitleLike(String title, Pageable pageable);
 
 }

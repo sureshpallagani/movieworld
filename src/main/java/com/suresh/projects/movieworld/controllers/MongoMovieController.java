@@ -1,5 +1,6 @@
 package com.suresh.projects.movieworld.controllers;
 
+import static java.util.Arrays.asList;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -43,14 +44,24 @@ public class MongoMovieController {
 														@RequestParam(name = "directors", required = false) String directors,
 													@ApiParam(value = "Can be one or more genres in the form of genre1|genre2|...", required = false) 
 														@RequestParam(name = "genres", required = false) String genres,
-													@ApiParam(value = "Find movies by year", required = false)
-														@RequestParam(name="year", required = false) int year) throws Exception {
-		if (year > 0) {
-			return assembler.toResource(repository.findByYear(year, pageable));
-		}
-		if (!isEmpty(actors)) {
-			QMovie movie = QMovie.movie;
-			return assembler.toResource(repository.findAll(movie.info.actors.any().name.eq(actors), pageable));
+													@ApiParam(value = "Find movies by Year", required = false)
+														@RequestParam(name="year", required = false) Integer year,
+													@ApiParam(value = "Find movies by Title like...", required = false)
+														@RequestParam(name="title", required = false) String title) throws Exception {
+		if (!isEmpty(title)) {
+			return assembler.toResource(repository.findByTitleLike(title, pageable));
+		} else if (year != null) {
+			return assembler.toResource(repository.findByYearOrderByTitle(year, pageable));
+		} else if (!isEmpty(actors) && !isEmpty(directors) && !isEmpty(genres)) {
+			return assembler.toResource(repository.findAll(QMovie.movie.info.actors.any().name.in(asList(actors.split("\\|")))
+																	.and(QMovie.movie.info.directors.any().name.in(asList(directors.split("\\|"))))
+																	.and(QMovie.movie.info.genres.any().type.in(asList(genres.split("\\|")))), pageable));
+		} else if (!isEmpty(actors)) {
+			return assembler.toResource(repository.findAll(QMovie.movie.info.actors.any().name.in(asList(actors.split("\\|"))), pageable));
+		} else if (!isEmpty(directors)) {
+			return assembler.toResource(repository.findAll(QMovie.movie.info.directors.any().name.in(asList(directors.split("\\|"))), pageable));
+		} else if (!isEmpty(genres)) {
+			return assembler.toResource(repository.findAll(QMovie.movie.info.genres.any().type.in(asList(genres.split("\\|"))), pageable));
 		}
 		return assembler.toResource(repository.findAll(pageable));
 	}
