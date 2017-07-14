@@ -214,7 +214,8 @@
 					</includes>
 				</configuration>
 			</plugin>
-			<!-- Plugin to generate Query types for entities -->
+			<!-- Plugin to generate Query types/Query predicates for entities -->
+			<!-- Based on the types of annotations used on entities, add the corresponding Processors -->
 		      <plugin>
 		        <groupId>com.mysema.maven</groupId>
 		        <artifactId>apt-maven-plugin</artifactId>
