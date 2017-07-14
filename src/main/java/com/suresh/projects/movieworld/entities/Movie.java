@@ -40,6 +40,8 @@ public class Movie implements Serializable {
 	public void setYear(int year) {
 		this.year = year;
 	}
+	//Comment @JsonIgnore on getter in order to work with Mongo.
+//	@JsonIgnore
 	public MovieInfo getInfo() {
 		return info;
 	}

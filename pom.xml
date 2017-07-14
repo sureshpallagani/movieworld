@@ -24,6 +24,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<cucumber.version>1.2.5</cucumber.version>
 		<swagger2.version>2.7.0</swagger2.version>
+		<querydsl.version>4.1.3</querydsl.version>
 		<aws.sdk.version>1.11.125</aws.sdk.version>
 		<java.version>1.8</java.version>
 	</properties>
@@ -79,6 +80,12 @@
         	<artifactId>metrics-core</artifactId>
         </dependency>
         
+		<!-- MongoDB -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+
 		<dependency>
 		   <groupId>mysql</groupId>
 		   <artifactId>mysql-connector-java</artifactId>
@@ -133,7 +140,26 @@
 		    <artifactId>springfox-swagger-ui</artifactId>
 		    <version>${swagger2.version}</version>
 		</dependency>
+
+		<!-- Query DSL for JPA/MongoDB queries -->
+		<dependency>
+		    <groupId>com.querydsl</groupId>
+		    <artifactId>querydsl-apt</artifactId>
+	    </dependency>
+		<dependency> 
+		    <groupId>com.querydsl</groupId>
+		    <artifactId>querydsl-jpa</artifactId> 
+		</dependency>
+		<dependency>
+		  <groupId>com.querydsl</groupId>
+		  <artifactId>querydsl-mongodb</artifactId>
+		</dependency>
 		
+		<dependency>
+		  <groupId>org.slf4j</groupId>
+		  <artifactId>slf4j-log4j12</artifactId>
+		</dependency>
+            		
 		<dependency>
 		    <groupId>org.hamcrest</groupId>
 		    <artifactId>hamcrest-library</artifactId>
@@ -188,7 +214,24 @@
 					</includes>
 				</configuration>
 			</plugin>
-		</plugins>
+			<!-- Plugin to generate Query types for entities -->
+		      <plugin>
+		        <groupId>com.mysema.maven</groupId>
+		        <artifactId>apt-maven-plugin</artifactId>
+		        <version>1.1.3</version>
+		        <executions>
+		          <execution>
+		            <goals>
+		              <goal>process</goal>
+		            </goals>
+		            <configuration>
+		              <outputDirectory>target/generated-sources/java</outputDirectory>
+		              <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+		            </configuration>
+		          </execution>
+		        </executions>
+		      </plugin>
+ 		</plugins>
 	</build>
 
 	<profiles>
