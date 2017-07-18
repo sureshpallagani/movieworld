@@ -22,6 +22,8 @@ public class MovieSetUp implements Serializable {
 	private SetUpOperation operation;
 	@Enumerated(EnumType.STRING)
 	private SetUpStatus status;
+	@Enumerated(EnumType.STRING)
+	private SetUpEnv environment;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
 	private Date startTime;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
@@ -56,6 +58,12 @@ public class MovieSetUp implements Serializable {
 	}
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
+	}
+	public SetUpEnv getEnvironment() {
+		return environment;
+	}
+	public void setEnvironment(SetUpEnv environment) {
+		this.environment = environment;
 	}
 	
 }

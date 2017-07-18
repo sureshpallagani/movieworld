@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.suresh.projects.movieworld.entities.MovieSetUp;
+import com.suresh.projects.movieworld.entities.SetUpEnv;
 import com.suresh.projects.movieworld.entities.SetUpOperation;
 import com.suresh.projects.movieworld.entities.SetUpStatus;
 import com.suresh.projects.movieworld.repositories.jpa.JpaMovieSetUpRepository;
@@ -22,8 +23,6 @@ import com.suresh.projects.movieworld.services.SetUpAsyncService;
 
 @RestController
 public class SetUpController {
-	private static final String TYPE_RDS = "RDS";
-	private static final String TYPE_MONGO = "MONGO";
 
 	@Autowired private SetUpAsyncService setUpAsyncService; 
 	@Autowired private JpaMovieSetUpRepository setupRepository;
@@ -32,7 +31,7 @@ public class SetUpController {
 	@PostMapping("/setup")
 	@ResponseStatus(HttpStatus.ACCEPTED)
 	public void prepareMovies(HttpServletResponse response, UriComponentsBuilder uriComponentsBuilder) throws Exception {
-		MovieSetUp setUp = setUpFor(SetUpOperation.CREATE, TYPE_RDS);
+		MovieSetUp setUp = setUpFor(SetUpOperation.CREATE, SetUpEnv.RDS);
 		setUpAsyncService.createMovieSetup(setUp);
 		final String location = uriComponentsBuilder.path("/setup"+"/"+setUp.getId()).build().encode().toString();
 		response.setHeader("Location", location);
@@ -46,7 +45,7 @@ public class SetUpController {
 	@DeleteMapping("/setup")
 	@ResponseStatus(HttpStatus.ACCEPTED)
 	public void clearData(HttpServletResponse response, UriComponentsBuilder uriComponentsBuilder) throws Exception {
-		MovieSetUp setUp = setUpFor(SetUpOperation.DELETE, TYPE_RDS);
+		MovieSetUp setUp = setUpFor(SetUpOperation.DELETE, SetUpEnv.RDS);
 		setUpAsyncService.deleteSetUp(setUp);
 		final String location = uriComponentsBuilder.path("/setup"+"/"+setUp.getId()).build().encode().toString();
 		response.setHeader("Location", location);
@@ -55,7 +54,7 @@ public class SetUpController {
 	@PostMapping("/mongo/setup")
 	@ResponseStatus(HttpStatus.ACCEPTED)
 	public void prepareMoviesForMongo(HttpServletResponse response, UriComponentsBuilder uriComponentsBuilder) throws Exception {
-		MovieSetUp setUp = setUpFor(SetUpOperation.CREATE, TYPE_MONGO);
+		MovieSetUp setUp = setUpFor(SetUpOperation.CREATE, SetUpEnv.MONGO);
 		setUpAsyncService.createMovieSetupForMongo(setUp);
 		response.setHeader("Location", uriComponentsBuilder.path("/mongo/setup"+"/"+setUp.getId()).build().encode().toString());
 	}
@@ -68,22 +67,46 @@ public class SetUpController {
 	@DeleteMapping("/mongo/setup")
 	@ResponseStatus(HttpStatus.ACCEPTED)
 	public void clearMongoData(HttpServletResponse response, UriComponentsBuilder uriComponentsBuilder) throws Exception {
-		MovieSetUp setUp = setUpFor(SetUpOperation.DELETE, TYPE_MONGO);
+		MovieSetUp setUp = setUpFor(SetUpOperation.DELETE, SetUpEnv.MONGO);
 		setUpAsyncService.deleteSetUpForMongo(setUp);
-		response.setHeader("Location", uriComponentsBuilder.path("/setup"+"/"+setUp.getId()).build().encode().toString());
+		response.setHeader("Location", uriComponentsBuilder.path("/mongo/setup"+"/"+setUp.getId()).build().encode().toString());
 	}
 
-	private MovieSetUp setUpFor(SetUpOperation op, String type) {
+	@PostMapping("/sqs/setup")
+	@ResponseStatus(HttpStatus.ACCEPTED)
+	public void prepareMoviesForSqs(HttpServletResponse response, UriComponentsBuilder uriComponentsBuilder) throws Exception {
+		MovieSetUp setUp = setUpFor(SetUpOperation.CREATE, SetUpEnv.AWS_SQS);
+		setUpAsyncService.createMovieSetupForSqs(setUp);
+		response.setHeader("Location", uriComponentsBuilder.path("/sqs/setup"+"/"+setUp.getId()).build().encode().toString());
+	}
+	
+	@GetMapping("/sqs/setup/{id}")
+	public MovieSetUp getSetUpStatusOnSqs(@PathVariable long id) {
+		return setUpAsyncService.getSetUpStatusOnSqs(id);
+	}
+	
+	@DeleteMapping("/sqs/setup")
+	@ResponseStatus(HttpStatus.ACCEPTED)
+	public void clearSqsSetup(HttpServletResponse response, UriComponentsBuilder uriComponentsBuilder) throws Exception {
+		MovieSetUp setUp = setUpFor(SetUpOperation.DELETE, SetUpEnv.AWS_SQS);
+		setUpAsyncService.deleteSetUpForSqs(setUp);
+		response.setHeader("Location", uriComponentsBuilder.path("/sqs/setup"+"/"+setUp.getId()).build().encode().toString());
+	}
+	
+	private MovieSetUp setUpFor(SetUpOperation op, SetUpEnv type) {
 		MovieSetUp setUp = new MovieSetUp();
 		setUp.setOperation(op);
 		setUp.setStatus(SetUpStatus.INPROGRESS);
 		setUp.setStartTime(DateTime.now().toDate());
 		switch (type) {
-		case "MONGO":
+		case MONGO:
 			setUp.setId(mongoMovieSetupRepository.count() + 1);
 			mongoMovieSetupRepository.insert(setUp);
 			break;
-		default:
+		case RDS:
+			setupRepository.saveAndFlush(setUp);
+			break;
+		case AWS_SQS:
 			setupRepository.saveAndFlush(setUp);
 			break;
 		}

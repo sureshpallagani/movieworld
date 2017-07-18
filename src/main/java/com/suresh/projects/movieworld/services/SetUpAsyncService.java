@@ -7,6 +7,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.jms.annotation.JmsListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
@@ -24,13 +25,13 @@ public class SetUpAsyncService {
 
 	@Autowired private JpaMovieSetUpRepository setupRepository;
 	@Autowired private MongoMovieSetUpRepository mongoSetupRepo;
-	@Autowired private AwsS3FileService awsS3FileService;
+	@Autowired private AwsIntegrationService awsIntegrationService;
 	@Autowired private JpaMovieRepository movieRepository;
 	@Autowired private MongoMovieRepository mongoRepository;
 
 	@Async
 	public Future<Long> createMovieSetup(MovieSetUp setUp) throws Exception {
-		List<Movie> movies = awsS3FileService.getMovieDataFromS3();
+		List<Movie> movies = awsIntegrationService.getMovieDataFromS3();
 		for(int i=0; i<movies.size(); i++) {
 			if (i % 100 == 0) {
 				movieRepository.saveAndFlush(movies.get(i));
@@ -55,8 +56,21 @@ public class SetUpAsyncService {
 	}
 
 	@Async
+	public void createMovieSetupForSqs(MovieSetUp setUp) {
+//		List<Movie> movies = awsIntegrationService.getMovieDataFromS3();
+		awsIntegrationService.createSqs();
+		//TODO
+	}
+
+	@Async
+	public void deleteSetUpForSqs(MovieSetUp setUp) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Async
 	public Future<Long> createMovieSetupForMongo(MovieSetUp setUp) {
-		List<Movie> movies = awsS3FileService.getMovieDataFromS3();
+		List<Movie> movies = awsIntegrationService.getMovieDataFromS3();
 		long count = mongoRepository.count();
 		movies.subList(0, 1000).forEach(m -> {
 												m.setId(count + movies.indexOf(m));
@@ -85,12 +99,21 @@ public class SetUpAsyncService {
 		return new AsyncResult<Long>(setUp.getId());
 	}
 
+	@JmsListener(destination = "${aws.queue.name}")
+	public void getMovie(String movieJson) throws Exception {
+		
+	}
+	
 	public MovieSetUp getSetUpStatus(long id) {
 		return setupRepository.findOne(id);
 	}
 
 	public MovieSetUp getSetUpStatusOnMongo(long id) {
 		return mongoSetupRepo.findOne(id);
+	}
+
+	public MovieSetUp getSetUpStatusOnSqs(long id) {
+		return setupRepository.findOne(id);
 	}
 
 }
