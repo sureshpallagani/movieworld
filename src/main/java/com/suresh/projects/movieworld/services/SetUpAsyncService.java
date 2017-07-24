@@ -7,7 +7,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.jms.annotation.JmsListener;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
@@ -28,6 +28,7 @@ public class SetUpAsyncService {
 	@Autowired private AwsIntegrationService awsIntegrationService;
 	@Autowired private JpaMovieRepository movieRepository;
 	@Autowired private MongoMovieRepository mongoRepository;
+	@Autowired private JmsTemplate jmsTemplate;
 
 	@Async
 	public Future<Long> createMovieSetup(MovieSetUp setUp) throws Exception {
@@ -57,15 +58,10 @@ public class SetUpAsyncService {
 
 	@Async
 	public void createMovieSetupForSqs(MovieSetUp setUp) {
-//		List<Movie> movies = awsIntegrationService.getMovieDataFromS3();
-		awsIntegrationService.createSqs();
-		//TODO
-	}
-
-	@Async
-	public void deleteSetUpForSqs(MovieSetUp setUp) {
-		// TODO Auto-generated method stub
-		
+		List<Movie> movies = awsIntegrationService.getMovieDataFromS3();
+		movies.parallelStream()
+				.limit(5)
+				.forEach(m -> jmsTemplate.convertAndSend("MovieWorld", m));
 	}
 
 	@Async
@@ -99,11 +95,6 @@ public class SetUpAsyncService {
 		return new AsyncResult<Long>(setUp.getId());
 	}
 
-	@JmsListener(destination = "${aws.queue.name}")
-	public void getMovie(String movieJson) throws Exception {
-		
-	}
-	
 	public MovieSetUp getSetUpStatus(long id) {
 		return setupRepository.findOne(id);
 	}

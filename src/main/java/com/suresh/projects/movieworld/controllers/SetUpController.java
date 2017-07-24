@@ -85,14 +85,6 @@ public class SetUpController {
 		return setUpAsyncService.getSetUpStatusOnSqs(id);
 	}
 	
-	@DeleteMapping("/sqs/setup")
-	@ResponseStatus(HttpStatus.ACCEPTED)
-	public void clearSqsSetup(HttpServletResponse response, UriComponentsBuilder uriComponentsBuilder) throws Exception {
-		MovieSetUp setUp = setUpFor(SetUpOperation.DELETE, SetUpEnv.AWS_SQS);
-		setUpAsyncService.deleteSetUpForSqs(setUp);
-		response.setHeader("Location", uriComponentsBuilder.path("/sqs/setup"+"/"+setUp.getId()).build().encode().toString());
-	}
-	
 	private MovieSetUp setUpFor(SetUpOperation op, SetUpEnv type) {
 		MovieSetUp setUp = new MovieSetUp();
 		setUp.setOperation(op);

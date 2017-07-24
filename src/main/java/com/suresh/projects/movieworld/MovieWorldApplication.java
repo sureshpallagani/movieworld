@@ -15,6 +15,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
@@ -36,6 +37,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @PropertySource("classpath:application.properties")
 @EnableSwagger2
 @EnableAsync
+@EnableJms
 public class MovieWorldApplication extends SpringBootServletInitializer {
 
 	@Autowired private AwsPropertiesHelper awsPropertiesHelper;
@@ -100,9 +102,9 @@ public class MovieWorldApplication extends SpringBootServletInitializer {
 	            .withRegion(Region.getRegion(Regions.US_EAST_2))
 	            .withAWSCredentialsProvider(awsPropertiesHelper.getAwsCredentials())
 	            .build());
-        factory.setDestinationResolver(new DynamicDestinationResolver());
-        factory.setConcurrency("3-10");
-        factory.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
+        factory.setDestinationResolver(new DynamicDestinationResolver());//Using the destination resolver as dynamic since we want to refer the AWS SQS by their names.
+        factory.setConcurrency("3-10");//3 listeners created initially and scales up to 10.
+        factory.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);//This will make spring acknowledge to delete the message after our method is done.
         return factory;
     }
 
