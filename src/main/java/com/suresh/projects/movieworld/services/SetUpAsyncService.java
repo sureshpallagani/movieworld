@@ -33,12 +33,10 @@ public class SetUpAsyncService {
 	@Async
 	public Future<Long> createMovieSetup(MovieSetUp setUp) throws Exception {
 		List<Movie> movies = awsIntegrationService.getMovieDataFromS3();
-		for(int i=0; i<movies.size(); i++) {
-			if (i % 100 == 0) {
-				movieRepository.saveAndFlush(movies.get(i));
-			} else {
-				movieRepository.save(movies.get(i));
-			}
+		while(movies.size() > 0) {
+			movies.stream().limit(10).forEach(movieRepository::save);
+			movieRepository.flush();
+			movies.removeAll(movies.subList(0, 9));
 		}
 		setUp.setEndTime(DateTime.now().toDate());
 		setUp.setStatus(SetUpStatus.COMPLETED);
@@ -48,8 +46,10 @@ public class SetUpAsyncService {
 
 	@Async
 	public Future<Long> deleteSetUp(MovieSetUp setUp) throws Exception {
-		List<Movie> movies = movieRepository.findAll();
-		movies.parallelStream().forEach(m -> {movieRepository.delete(m);});
+		while(movieRepository.count() > 0) {
+			Page<Movie> movies = movieRepository.findAll(new PageRequest(0, 100));
+			movieRepository.deleteInBatch(movies.getContent());
+		}
 		setUp.setStatus(SetUpStatus.COMPLETED);
 		setUp.setEndTime(DateTime.now().toDate());
 		setupRepository.saveAndFlush(setUp);
@@ -60,7 +60,7 @@ public class SetUpAsyncService {
 	public void createMovieSetupForSqs(MovieSetUp setUp) {
 		List<Movie> movies = awsIntegrationService.getMovieDataFromS3();
 		movies.parallelStream()
-				.limit(5)
+				.limit(100)
 				.forEach(m -> jmsTemplate.convertAndSend("MovieWorld", m));
 	}
 
@@ -68,15 +68,12 @@ public class SetUpAsyncService {
 	public Future<Long> createMovieSetupForMongo(MovieSetUp setUp) {
 		List<Movie> movies = awsIntegrationService.getMovieDataFromS3();
 		long count = mongoRepository.count();
-		movies.subList(0, 1000).forEach(m -> {
-												m.setId(count + movies.indexOf(m));
-												mongoRepository.insert(m);
-												try {
-													Thread.sleep(500); //give half second for each insert just not to max out IOPS to stay in free tier.
-												} catch (InterruptedException e) {
-													e.printStackTrace();
-												}
-											});
+		movies.parallelStream()
+				.limit(1000)
+				.forEach(m -> {
+								m.setId(count + movies.indexOf(m));
+								mongoRepository.insert(m);
+								});
 		setUp.setStatus(SetUpStatus.COMPLETED);
 		setUp.setEndTime(DateTime.now().toDate());
 		mongoSetupRepo.save(setUp);
