@@ -1,9 +1,12 @@
 package com.suresh.projects.movieworld.entities;
 
+import java.io.Serializable;
+
 import javax.persistence.Embeddable;
 
+@SuppressWarnings("serial")
 @Embeddable
-public class Actor {
+public class Actor implements Serializable {
 	private String name;
 
 	public String getName() {

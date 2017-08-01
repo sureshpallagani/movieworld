@@ -1,5 +1,6 @@
 package com.suresh.projects.movieworld.entities;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -15,8 +16,9 @@ import javax.persistence.OneToOne;
 
 import org.springframework.util.StringUtils;
 
+@SuppressWarnings("serial")
 @Entity
-public class MovieInfo {
+public class MovieInfo implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

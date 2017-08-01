@@ -12,6 +12,8 @@ public class AwsPropertiesHelper {
 	@Value("${aws.bucket.name}") private String awsBucketName;
 	@Value("${aws.region}") private String awsRegion;
 	@Value("${movies.data.file}") private String moviesDataFile;
+	@Value("${aws.queue.name}") private String awsQueueName;
+	@Value("${movies.json.local}") private String localJsonFile;
 	
 	public AWSStaticCredentialsProvider getAwsCredentials() {
 		//Setup your AWS access key and secret access key as environment variables.
@@ -29,6 +31,14 @@ public class AwsPropertiesHelper {
 
 	public String getMoviesDataFile() {
 		return moviesDataFile;
+	}
+
+	public String getAwsQueueName() {
+		return awsQueueName;
+	}
+
+	public String getLocalJsonFile() {
+		return localJsonFile;
 	}
 	
 }

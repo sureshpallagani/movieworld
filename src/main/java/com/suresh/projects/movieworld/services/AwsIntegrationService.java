@@ -2,9 +2,13 @@ package com.suresh.projects.movieworld.services;
 
 import static java.util.Collections.EMPTY_LIST;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.regions.Regions;
@@ -18,9 +22,10 @@ import com.suresh.projects.movieworld.AwsPropertiesHelper;
 import com.suresh.projects.movieworld.entities.Movie;
 
 @Service
-public class AwsS3FileService {
+public class AwsIntegrationService {
 	@Autowired private AwsPropertiesHelper awsPropertiesHelper;
-	
+	@Autowired private CounterService counterService;
+
 	@SuppressWarnings("unchecked")
 	public List<Movie> getMovieDataFromS3() {
 		//Using US East 2 region. This needs to be changed accordingly.
@@ -35,5 +40,14 @@ public class AwsS3FileService {
 			e.printStackTrace();
 		}
 		return EMPTY_LIST;
+	}
+	
+	@JmsListener(destination = "MovieWorld")
+	public void onMovieMessage(Movie movie) throws Exception {
+		counterService.increment("aws.sqs.onMovieMessage");
+		ObjectMapper mapper = new ObjectMapper();
+		BufferedWriter writer = new BufferedWriter(new FileWriter(awsPropertiesHelper.getLocalJsonFile(),true));
+		writer.append('\n'+mapper.writeValueAsString(movie));
+		writer.close();
 	}
 }

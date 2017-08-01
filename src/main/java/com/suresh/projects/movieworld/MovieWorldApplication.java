@@ -1,9 +1,11 @@
 package com.suresh.projects.movieworld;
 
 import java.time.LocalDate;
-import java.util.concurrent.Executor;
+
+import javax.jms.Session;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -13,9 +15,15 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.jms.annotation.EnableJms;
+import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.support.destination.DynamicDestinationResolver;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import com.amazon.sqs.javamessaging.SQSConnectionFactory;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -29,7 +37,10 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @PropertySource("classpath:application.properties")
 @EnableSwagger2
 @EnableAsync
+@EnableJms
 public class MovieWorldApplication extends SpringBootServletInitializer {
+
+	@Autowired private AwsPropertiesHelper awsPropertiesHelper;
 
 	/**
 	 * Properties configuration to read from applicaiton.properties
@@ -83,6 +94,28 @@ public class MovieWorldApplication extends SpringBootServletInitializer {
 //        return executor;
 //    }
 
+    @Bean
+    public DefaultJmsListenerContainerFactory jmsListenerContainerFactory() {
+    	DefaultJmsListenerContainerFactory factory =
+                new DefaultJmsListenerContainerFactory();
+        factory.setConnectionFactory(SQSConnectionFactory.builder()
+	            .withRegion(Region.getRegion(Regions.US_EAST_2))
+	            .withAWSCredentialsProvider(awsPropertiesHelper.getAwsCredentials())
+	            .build());
+        factory.setDestinationResolver(new DynamicDestinationResolver());//Using the destination resolver as dynamic since we want to refer the AWS SQS by their names.
+        factory.setConcurrency("3-10");//3 listeners created initially and scales up to 10.
+        factory.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);//This will make spring acknowledge to delete the message after our method is done.
+        return factory;
+    }
+
+    @Bean
+    public JmsTemplate defaultJmsTemplate() {
+        return new JmsTemplate(SQSConnectionFactory.builder()
+										            .withRegion(Region.getRegion(Regions.US_EAST_2))
+										            .withAWSCredentialsProvider(awsPropertiesHelper.getAwsCredentials())
+										            .build());
+    }
+	
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(MovieWorldApplication.class);
