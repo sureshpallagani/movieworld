@@ -8,6 +8,10 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.Resource;
@@ -26,6 +30,7 @@ import com.suresh.projects.movieworld.repositories.jpa.JpaMovieInfoRepository;
 import com.suresh.projects.movieworld.repositories.jpa.JpaMovieRepository;
 
 @Service
+@CacheConfig(cacheNames = {"movies"})
 public class MovieService {
 	@Autowired
 	private JpaMovieRepository movieRepository;
@@ -50,6 +55,7 @@ public class MovieService {
 		return modelMapper.map(movie, MovieDto.class);
 	}
 
+	@Cacheable
 	public Optional<MovieDto> findById(long id) {
 		counterService.increment("service.movies.findById");
 		Optional<Movie> movie = Optional.ofNullable(movieRepository.findOne(id));
@@ -59,6 +65,7 @@ public class MovieService {
 		return Optional.ofNullable(null);
 	}
 
+	@CachePut
 	public MovieDto updateMovie(MovieDto movieDto) throws ApiException {
 		if (movieRepository.exists(movieDto.getId())) {
 			Movie movie = movieRepository.saveAndFlush(modelMapper.map(movieDto, Movie.class));
@@ -68,6 +75,7 @@ public class MovieService {
 		}
 	}
 
+	@CacheEvict
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void deleteMovie(long id) throws ApiException {
 		if (movieRepository.exists(id)) {

@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,6 +44,7 @@ public class SetUpController {
 	}
 	
 	@DeleteMapping("/setup")
+	@CacheEvict(cacheNames = "movies", allEntries = true)
 	@ResponseStatus(HttpStatus.ACCEPTED)
 	public void clearData(HttpServletResponse response, UriComponentsBuilder uriComponentsBuilder) throws Exception {
 		MovieSetUp setUp = setUpFor(SetUpOperation.DELETE, SetUpEnv.RDS);
