@@ -8,7 +8,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +23,7 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.web.servlet.DispatcherServlet;
 
 import com.amazon.sqs.javamessaging.SQSConnectionFactory;
 import com.amazonaws.regions.Region;
@@ -118,6 +121,19 @@ public class MovieWorldApplication extends SpringBootServletInitializer {
 										            .build());
     }
 	
+//    @Bean
+//    public DispatcherServlet dispatcherServlet() {
+//        return new DispatcherServlet();
+//    }
+//
+//    @Bean
+//    public ServletRegistrationBean dispatcherServletRegistration(){
+//        ServletRegistrationBean registrationBean = new ServletRegistrationBean(dispatcherServlet());
+//        registrationBean.addUrlMappings("*/*");
+//        registrationBean.setName(DispatcherServletAutoConfiguration.DEFAULT_DISPATCHER_SERVLET_REGISTRATION_BEAN_NAME);
+//        return registrationBean;
+//    }
+    
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(MovieWorldApplication.class);
